@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ആകാശയാത്ര SkyYatra | എല്ലാ വിമാനങ്ങളിലും സീറ്റ് ബുക്ക് ചെയ്യൂ</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✈️</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Malayalam:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        navy: '#0A1931',
+        navy2: '#132E57',
+        skybrand: '#00B4D8',
+        deepsky: '#0077B6',
+        gold: '#FFB800',
+        goldlight: '#FFF3C4',
+        mist: '#F2F6FF'
+      },
+      fontFamily: {
+        malayalam: ['"Noto Sans Malayalam"','sans-serif'],
+        jakarta: ['"Plus Jakarta Sans"','"Noto Sans Malayalam"','sans-serif']
+      },
+      boxShadow: {
+        premium: '0 20px 60px -15px rgba(0,180,216,0.35)',
+        card: '0 10px 40px -10px rgba(10,25,49,0.18)',
+        glow: '0 0 0 4px rgba(0,180,216,0.15)'
+      }
+    }
+  }
+}
+</script>
+<style>
+*{font-family:"Plus Jakarta Sans","Noto Sans Malayalam",sans-serif;scroll-behavior:smooth}
+body{background:#F2F6FF;color:#0A1931;overflow-x:hidden}
+::-webkit-scrollbar{width:10px;height:8px}
+::-webkit-scrollbar-track{background:#eef2ff}
+::-webkit-scrollbar-thumb{background:linear-gradient(#00B4D8,#7c3aed);border-radius:20px}
+#loader{position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#0A1931 0%,#132E57 40%,#0077B6 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .6s,visibility .6s}
+#loader.hide{opacity:0;visibility:hidden}
+.runway{width:280px;height:4px;background:rgba(255,255,255,.2);border-radius:10px;margin-top:20px;position:relative;overflow:hidden}
+.runway::after{content:'';position:absolute;top:0;left:-40%;width:40%;height:100%;background:#FFB800;animation:run 1s linear infinite}
+@keyframes run{to{left:100%}}
+.plane-loader{font-size:70px;animation:flyUp 1.6s ease-in-out infinite;filter:drop-shadow(0 10px 20px rgba(0,180,216,.6))}
+@keyframes flyUp{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-18px) rotate(8deg)}}
+.hero-bg{background:linear-gradient(180deg,rgba(10,25,49,.78) 0%,rgba(10,25,49,.55) 40%,rgba(10,25,49,.92) 100%),url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=2074&auto=format&fit=crop') center/cover no-repeat}
+.cloud{position:absolute;background:rgba(255,255,255,.9);border-radius:50px;filter:blur(1px);opacity:.75;animation:drift linear infinite}
+@keyframes drift{from{transform:translateX(-15vw)}to{transform:translateX(110vw)}}
+.flying-plane{position:absolute;top:18%;left:-10%;font-size:34px;animation:flyAcross 14s linear infinite;z-index:5;filter:drop-shadow(0 8px 12px rgba(0,0,0,.3))}
+@keyframes flyAcross{0%{left:-10%;top:28%;transform:rotate(8deg)}50%{top:14%}100%{left:110%;top:22%;transform:rotate(8deg)}}
+.glass{background:rgba(255,255,255,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.glass-dark{background:rgba(10,25,49,.72);backdrop-filter:blur(20px)}
+.tab-active{background:linear-gradient(135deg,#00B4D8,#0077B6)!important;color:#fff!important;box-shadow:0 8px 20px rgba(0,180,216,.4)}
+.reveal{opacity:0;transform:translateY(40px);transition:all .8s cubic-bezier(.16,1,.3,1)}
+.reveal.visible{opacity:1;transform:none}
+.marquee-track{display:flex;gap:1.5rem;animation:marquee 28s linear infinite;width:max-content}
+@keyframes marquee{to{transform:translateX(-50%)}}
+.route-card{transition:.4s cubic-bezier(.16,1,.3,1)}
+.route-card:hover{transform:translateY(-10px) scale(1.02)}
+.service-card{transition:.35s}
+.service-card:hover{transform:translateY(-8px);box-shadow:0 20px 50px -10px rgba(0,180,216,.4);border-color:#00B4D8}
+.seat{width:38px;height:38px;border-radius:10px 10px 4px 4px;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.2s;border:2px solid transparent;position:relative}
+.seat.available{background:#E6F7FF;border-color:#B8E6FF;color:#0077B6}
+.seat.available:hover{background:#00B4D8;color:#fff;transform:scale(1.12)}
+.seat.selected{background:linear-gradient(135deg,#7c3aed,#00B4D8);color:#fff;box-shadow:0 6px 15px rgba(124,58,237,.4);transform:scale(1.1)}
+.seat.occupied{background:#E2E8F0;color:#94A3B8;cursor:not-allowed;text-decoration:line-through}
+.seat.legroom{border-color:#FFB800;background:#FFF8E1}
+.seat.business{background:#0A1931;color:#FFB800;border-color:#FFB800}
+.seat.business.selected{background:linear-gradient(135deg,#FFB800,#FF6B00);color:#fff}
+.modal-bg{background:rgba(10,25,49,.7);backdrop-filter:blur(8px)}
+.flight-card{transition:.3s}
+.flight-card:hover{box-shadow:0 20px 50px -12px rgba(0,119,182,.35);border-color:#00B4D8;transform:translateY(-3px)}
+.timeline-dot{width:14px;height:14px;border-radius:50%;background:#00B4D8;box-shadow:0 0 0 6px rgba(0,180,216,.18)}
+.dashed-line{background-image:linear-gradient(to right,#00B4D8 50%,transparent 50%);background-size:14px 2px;height:2px}
+input,select,textarea{outline:none}
+input:focus,select:focus{box-shadow:0 0 0 4px rgba(0,180,216,.15);border-color:#00B4D8!important}
+.toast-in{animation:toastIn .45s cubic-bezier(.16,1,.3,1)}
+@keyframes toastIn{from{transform:translateX(100%);opacity:0}to{transform:none;opacity:1}}
+.ticket-perforation{background-image:linear-gradient(to bottom,#cbd5e1 55%,transparent 45%);background-size:2px 12px;width:2px}
+.chat-msg{max-width:82%;padding:10px 14px;border-radius:16px;font-size:14px;line-height:1.5;animation:toastIn .3s}
+.faq-answer{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.faq-open .faq-answer{max-height:250px}
+.faq-open .faq-arrow{transform:rotate(180deg)}
+.faq-arrow{transition:.3s}
+.shimmer{background:linear-gradient(90deg,#e2e8f0 25%,#f8fafc 50%,#e2e8f0 75%);background-size:200% 100%;animation:shimmer 1.2s infinite}
+@keyframes shimmer{to{background-position:-200% 0}}
+.progress-plane{transition:left 2s linear}
+.aircraft-nose{width:220px;height:70px;background:linear-gradient(#0A1931,#132E57);border-radius:110px 110px 20px 20px;margin:0 auto;position:relative;display:flex;align-items:center;justify-content:center}
+.cockpit{width:120px;height:28px;background:linear-gradient(180deg,#7dd3fc,#0284c7);border-radius:60px 60px 10px 10px;opacity:.9}
+.badge-pulse{animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,184,0,.5)}50%{box-shadow:0 0 0 10px rgba(255,184,0,0)}}
+@media print{.no-print{display:none!important}#ticketPrint{display:block!important}}
+.step-line{height:3px;flex:1;background:#E2E8F0;border-radius:10px;overflow:hidden}
+.step-line.fill{background:linear-gradient(90deg,#00B4D8,#7c3aed)}
+.lang-en{display:none}
+body.en-mode .lang-ml{display:none}
+body.en-mode .lang-en{display:inline}
+.no-scrollbar::-webkit-scrollbar{display:none}
+</style>
+</head>
+<body class="font-jakarta">
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="plane-loader">✈️</div>
+  <h1 class="text-white text-3xl font-extrabold mt-4 tracking-wide">ആകാശയാത്ര <span class="text-gold">SkyYatra</span></h1>
+  <p class="text-sky-200 mt-2 text-sm">എല്ലാ വിമാനങ്ങളും • ഒരൊറ്റ ക്ലിക്കിൽ...</p>
+  <div class="runway"></div>
+</div>
+
+<!-- TOP BAR -->
+<div class="bg-navy text-white text-xs py-2 px-4 no-print">
+  <div class="max-w-7xl mx-auto flex justify-between items-center">
+    <div class="flex items-center gap-4 overflow-hidden">
+      <span class="hidden sm:inline">📞 24x7 മലയാളം സഹായം: <b class="text-gold">1800-419-0088</b></span>
+      <span class="hidden md:inline text-sky-200">| ✈️ 450+ എയർലൈനുകൾ • 2000+ നഗരങ്ങൾ</span>
+      <span class="sm:hidden">✈️ 450+ എയർലൈനുകൾ</span>
+    </div>
+    <div class="flex items-center gap-3">
+      <span class="bg-gold text-navy px-2 py-0.5 rounded-full font-bold">🔥 ONAM SALE: 25% OFF</span>
+      <button onclick="toggleLang()" class="bg-white/10 hover:bg-white/20 px-3 py-1 rounded-full font-bold border border-white/20">മല | EN</button>
+    </div>
+  </div>
+</div>
+
+<!-- NAVBAR -->
+<nav class="sticky top-0 z-50 glass border-b border-sky-100 shadow-sm no-print">
+  <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+    <a href="#home" class="flex items-center gap-3">
+      <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-deepsky via-skybrand to-violet-600 flex items-center justify-center text-2xl shadow-premium">✈️</div>
+      <div>
+        <div class="font-extrabold text-xl leading-none text-navy">ആകാശയാത്ര <span class="text-skybrand">SkyYatra</span></div>
+        <div class="text-[11px] text-slate-500 font-semibold tracking-widest">ALL FLIGHTS • ALL SEATS • ONE APP</div>
+      </div>
+    </a>
+    <div class="hidden lg:flex items-center gap-7 font-bold text-[15px] text-navy">
+      <a href="#home" class="hover:text-skybrand transition"><span class="lang-ml">വിമാനങ്ങൾ</span><span class="lang-en">Flights</span></a>
+      <a href="#routes" class="hover:text-skybrand transition"><span class="lang-ml">ഓഫറുകൾ</span><span class="lang-en">Offers</span></a>
+      <a href="#services" class="hover:text-skybrand transition"><span class="lang-ml">സേവനങ്ങൾ</span><span class="lang-en">Services</span></a>
+      <a href="#hotels" class="hover:text-skybrand transition"><span class="lang-ml">ഹോട്ടലുകൾ</span><span class="lang-en">Hotels</span></a>
+      <a href="#tracker" class="hover:text-skybrand transition"><span class="lang-ml">ട്രാക്കർ</span><span class="lang-en">Tracker</span></a>
+      <a href="#myTrips" class="hover:text-skybrand transition flex items-center gap-1"><span class="lang-ml">എന്റെ യാത്രകൾ</span><span class="lang-en">My Trips</span> <span id="tripCount" class="bg-gold text-navy text-[11px] px-2 py-0.5 rounded-full">0</span></a>
+    </div>
+    <div class="flex items-center gap-2">
+      <button onclick="openModal('loginModal')" class="hidden sm:block px-5 py-2.5 rounded-xl font-bold text-navy border-2 border-navy/10 hover:border-skybrand hover:text-skybrand transition">ലോഗിൻ</button>
+      <button onclick="document.getElementById('searchWidget').scrollIntoView({behavior:'smooth'})" class="px-5 py-2.5 rounded-xl font-bold text-white bg-gradient-to-r from-deepsky to-violet-600 shadow-premium hover:scale-105 transition">ബുക്ക് ചെയ്യൂ</button>
+      <button class="lg:hidden text-2xl px-2" onclick="document.getElementById('mobileMenu').classList.toggle('hidden')">☰</button>
+    </div>
+  </div>
+  <div id="mobileMenu" class="hidden lg:hidden bg-white border-t px-6 py-4 space-y-3 font-bold">
+    <a href="#home" class="block">✈️ <span class="lang-ml">വിമാനങ്ങൾ</span><span class="lang-en">Flights</span></a>
+    <a href="#routes" class="block">🔥 ഓഫറുകൾ</a>
+    <a href="#services" class="block">🛎️ സേവനങ്ങൾ</a>
+    <a href="#hotels" class="block">🏨 ഹോട്ടലുകൾ</a>
+    <a href="#tracker" class="block">📍 ഫ്ലൈറ്റ് ട്രാക്കർ</a>
+    <a href="#myTrips" class="block">🧳 എന്റെ യാത്രകൾ</a>
+  </div>
+</nav>
+
+<!-- HERO + SEARCH -->
+<section id="home" class="hero-bg relative overflow-hidden no-print">
+  <div class="cloud" style="width:120px;height:36px;top:12%;animation-duration:26s"></div>
+  <div class="cloud" style="width:180px;height:46px;top:28%;animation-duration:38s;animation-delay:-12s"></div>
+  <div class="cloud" style="width:100px;height:30px;top:55%;animation-duration:22s;animation-delay:-6s"></div>
+  <div class="flying-plane">✈️</div>
+  <div class="max-w-7xl mx-auto px-4 pt-12 pb-10 relative z-10">
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center gap-2 bg-white/15 border border-white/25 text-white px-4 py-1.5 rounded-full text-sm font-bold backdrop-blur mb-4">
+        <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span> LIVE: ഇന്ന് 12,480+ സീറ്റുകൾ ലഭ്യം
+      </div>
+      <h1 class="text-white font-black text-3xl sm:text-5xl lg:text-6xl leading-tight">എല്ലാ വിമാനത്തിലും<br><span class="bg-gradient-to-r from-gold via-orange-400 to-gold bg-clip-text text-transparent">സീറ്റ് ബുക്ക് ചെയ്യൂ</span> ഈസിയായി ✈️</h1>
+      <p class="text-sky-100 mt-4 text-sm sm:text-lg max-w-2xl mx-auto">ഇൻഡിഗോ, എയർ ഇന്ത്യ, എമിറേറ്റ്സ്, ഖത്തർ — <b class="text-white">450+ എയർലൈനുകളിലെ</b> തത്സമയ സീറ്റ് മാപ്പ്, മികച്ച വില, മലയാളത്തിൽ സഹായം.</p>
+      <div class="flex flex-wrap justify-center gap-3 mt-5 text-white text-sm font-bold">
+        <span class="bg-white/10 border border-white/20 px-4 py-2 rounded-full backdrop-blur">⭐ 4.9 റേറ്റിംഗ് (2.4 ലക്ഷം റിവ്യൂ)</span>
+        <span class="bg-white/10 border border-white/20 px-4 py-2 rounded-full backdrop-blur">🛡️ 100% റീഫണ്ട് ഗ്യാരണ്ടി</span>
+        <span class="bg-white/10 border border-white/20 px-4 py-2 rounded-full backdrop-blur hidden sm:inline">💬 മലയാളം ചാറ്റ് സപ്പോർട്ട്</span>
+      </div>
+    </div>
+
+    <!-- SEARCH WIDGET -->
+    <div id="searchWidget" class="glass rounded-3xl shadow-2xl p-4 sm:p-6 max-w-5xl mx-auto border border-white/40">
+      <div class="flex flex-wrap gap-2 mb-5">
+        <button onclick="setTripType('oneway',this)" class="trip-tab tab-active px-5 py-2 rounded-full font-bold text-sm bg-slate-100 text-navy transition">ഒറ്റ യാത്ര</button>
+        <button onclick="setTripType('round',this)" class="trip-tab px-5 py-2 rounded-full font-bold text-sm bg-slate-100 text-navy transition">റൗണ്ട് ട്രിപ്പ്</button>
+        <button onclick="openModal('multicityModal')" class="px-5 py-2 rounded-full font-bold text-sm bg-slate-100 text-navy transition">🌍 മൾട്ടി-സിറ്റി</button>
+        <button onclick="document.getElementById('tracker').scrollIntoView({behavior:'smooth'})" class="px-5 py-2 rounded-full font-bold text-sm bg-goldlight text-navy transition ml-auto">📍 ഫ്ലൈറ്റ് സ്റ്റാറ്റസ്</button>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
+        <div class="md:col-span-3 relative">
+          <label class="text-[11px] font-extrabold text-slate-500 tracking-widest">എവിടെ നിന്ന് (FROM)</label>
+          <input id="fromInput" oninput="showAirports('from')" onfocus="showAirports('from')" placeholder="കൊച്ചി (COK)" class="w-full mt-1 p-3.5 rounded-xl border-2 border-slate-200 font-bold text-navy bg-white" autocomplete="off">
+          <input type="hidden" id="fromCode" value="COK">
+          <div id="fromList" class="absolute z-30 w-full bg-white rounded-xl shadow-2xl border mt-1 max-h-60 overflow-auto hidden"></div>
+        </div>
+        <div class="md:col-span-1 flex items-end justify-center pb-2">
+          <button onclick="swapAirports()" class="w-11 h-11 rounded-full bg-gradient-to-br from-skybrand to-violet-600 text-white text-xl shadow-premium hover:rotate-180 transition duration-500">⇄</button>
+        </div>
+        <div class="md:col-span-3 relative">
+          <label class="text-[11px] font-extrabold text-slate-500 tracking-widest">എങ്ങോട്ട് (TO)</label>
+          <input id="toInput" oninput="showAirports('to')" onfocus="showAirports('to')" placeholder="ദുബായ് (DXB)" class="w-full mt-1 p-3.5 rounded-xl border-2 border-slate-200 font-bold text-navy bg-white" autocomplete="off">
+          <input type="hidden" id="toCode" value="DXB">
+          <div id="toList" class="absolute z-30 w-full bg-white rounded-xl shadow-2xl border mt-1 max-h-60 overflow-auto hidden"></div>
+        </div>
+        <div class="md:col-span-2">
+          <label class="text-[11px] font-extrabold text-slate-500 tracking-widest">യാത്രാ തീയതി</label>
+          <input id="travelDate" type="date" class="w-full mt-1 p-3.5 rounded-xl border-2 border-slate-200 font-bold text-navy bg-white">
+        </div>
+        <div class="md:col-span-3 relative">
+          <label class="text-[11px] font-extrabold text-slate-500 tracking-widest">യാത്രക്കാർ & ക്ലാസ്</label>
+          <button onclick="document.getElementById('paxDrop').classList.toggle('hidden')" class="w-full mt-1 p-3.5 rounded-xl border-2 border-slate-200 font-bold text-navy bg-white text-left flex justify-between items-center">
+            <span id="paxLabel">1 Adult • Economy</span><span>▾</span>
+          </button>
+          <div id="paxDrop" class="hidden absolute z-30 w-full bg-white rounded-2xl shadow-2xl border p-4 mt-1">
+            <div class="space-y-3">
+              <div class="flex justify-between items-center"><div><b>മുതിർന്നവർ</b><div class="text-xs text-slate-500">12 വയസ്സിന് മുകളിൽ</div></div><div class="flex items-center gap-2"><button onclick="changePax('adults',-1)" class="w-8 h-8 rounded-full bg-slate-100 font-bold">−</button><span id="adultsCount" class="font-bold w-5 text-center">1</span><button onclick="changePax('adults',1)" class="w-8 h-8 rounded-full bg-skybrand text-white font-bold">+</button></div></div>
+              <div class="flex justify-between items-center"><div><b>കുട്ടികൾ</b><div class="text-xs text-slate-500">2-11 വയസ്സ്</div></div><div class="flex items-center gap-2"><button onclick="changePax('children',-1)" class="w-8 h-8 rounded-full bg-slate-100 font-bold">−</button><span id="childrenCount" class="font-bold w-5 text-center">0</span><button onclick="changePax('children',1)" class="w-8 h-8 rounded-full bg-skybrand text-white font-bold">+</button></div></div>
+              <div class="flex justify-between items-center"><div><b>കുഞ്ഞുങ്ങൾ</b><div class="text-xs text-slate-500">2 വയസ്സിന് താഴെ</div></div><div class="flex items-center gap-2"><button onclick="changePax('infants',-1)" class="w-8 h-8 rounded-full bg-slate-100 font-bold">−</button><span id="infantsCount" class="font-bold w-5 text-center">0</span><button onclick="changePax('infants',1)" class="w-8 h-8 rounded-full bg-skybrand text-white font-bold">+</button></div></div>
+              <div class="pt-2 border-t"><div class="text-xs font-bold text-slate-500 mb-2">ക്ലാസ് തിരഞ്ഞെടുക്കൂ</div><div class="grid grid-cols-3 gap-2">
+                <button onclick="setClass('Economy',this)" class="class-btn tab-active py-2 rounded-lg text-xs font-bold bg-slate-100">Economy</button>
+                <button onclick="setClass('Premium',this)" class="class-btn py-2 rounded-lg text-xs font-bold bg-slate-100">Premium</button>
+                <button onclick="setClass('Business',this)" class="class-btn py-2 rounded-lg text-xs font-bold bg-slate-100">Business</button>
+              </div></div>
+              <button onclick="document.getElementById('paxDrop').classList.add('hidden')" class="w-full bg-navy text-white py-2.5 rounded-xl font-bold mt-2">ശരി ✓</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="returnRow" class="hidden mt-3 grid grid-cols-1 md:grid-cols-4 gap-3">
+        <div><label class="text-[11px] font-extrabold text-slate-500 tracking-widest">മടക്ക തീയതി</label><input id="returnDate" type="date" class="w-full mt-1 p-3.5 rounded-xl border-2 border-slate-200 font-bold"></div>
+      </div>
+      <div class="flex flex-col sm:flex-row gap-3 mt-4 items-center">
+        <div class="flex gap-2 text-sm font-bold text-slate-600 flex-wrap">
+          <label class="flex items-center gap-1 bg-white px-3 py-2 rounded-full border cursor-pointer"><input type="checkbox" id="directOnly" class="accent-sky-500"> നേരിട്ടുള്ള ഫ്ലൈറ്റുകൾ മാത്രം</label>
+          <label class="flex items-center gap-1 bg-white px-3 py-2 rounded-full border cursor-pointer"><input type="checkbox" id="studentFare" class="accent-sky-500"> 🎓 സ്റ്റുഡന്റ് ഫെയർ</label>
+          <label class="flex items-center gap-1 bg-white px-3 py-2 rounded-full border cursor-pointer"><input type="checkbox" id="seniorFare" class="accent-sky-500"> 👴 സീനിയർ സിറ്റിസൺ</label>
+        </div>
+        <button onclick="searchFlights()" class="sm:ml-auto w-full sm:w-auto px-10 py-4 rounded-2xl font-black text-lg text-white bg-gradient-to-r from-orange-500 via-amber-500 to-gold shadow-2xl hover:scale-105 active:scale-95 transition flex items-center justify-center gap-2">🔍 ഫ്ലൈറ്റുകൾ തിരയൂ</button>
+      </div>
+    </div>
+    <!-- STATS -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-5xl mx-auto mt-6">
+      <div class="glass-dark rounded-2xl p-4 text-center border border-white/15"><div class="text-2xl font-black text-gold"><span class="counter" data-target="450">0</span>+</div><div class="text-white text-xs font-bold">എയർലൈനുകൾ</div></div>
+      <div class="glass-dark rounded-2xl p-4 text-center border border-white/15"><div class="text-2xl font-black text-gold"><span class="counter" data-target="2000">0</span>+</div><div class="text-white text-xs font-bold">നഗരങ്ങൾ</div></div>
+      <div class="glass-dark rounded-2xl p-4 text-center border border-white/15"><div class="text-2xl font-black text-gold"><span class="counter" data-target="48">0</span> ലക്ഷം</div><div class="text-white text-xs font-bold">സന്തുഷ്ട യാത്രക്കാർ</div></div>
+      <div class="glass-dark rounded-2xl p-4 text-center border border-white/15"><div class="text-2xl font-black text-gold">₹<span class="counter" data-target="2500">0</span></div><div class="text-white text-xs font-bold">വരെ ക്യാഷ്ബാക്ക്</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTS SECTION -->
+<section id="resultsSection" class="hidden max-w-7xl mx-auto px-4 py-10 no-print">
+  <div class="bg-white rounded-3xl shadow-card border p-4 sm:p-6 mb-5 flex flex-col lg:flex-row lg:items-center gap-4">
+    <div>
+      <h2 class="font-black text-xl sm:text-2xl">✈️ <span id="resFrom">COK</span> → <span id="resTo">DXB</span> <span class="text-sm font-bold text-slate-500">(<span id="resDate"></span> • <span id="resPax"></span>)</span></h2>
+      <p class="text-sm text-slate-500 font-semibold"><span id="flightCount">0</span> ഫ്ലൈറ്റുകൾ കണ്ടെത്തി • ഏറ്റവും കുറഞ്ഞ നിരക്ക് <b id="lowestFare" class="text-green-600"></b></p>
+    </div>
+    <div class="lg:ml-auto flex flex-wrap gap-2">
+      <button onclick="sortFlights('cheap')" class="sort-btn px-4 py-2 rounded-full text-sm font-bold bg-navy text-white">💰 വില കുറഞ്ഞത്</button>
+      <button onclick="sortFlights('fast')" class="sort-btn px-4 py-2 rounded-full text-sm font-bold bg-slate-100">⚡ വേഗത</button>
+      <button onclick="sortFlights('early')" class="sort-btn px-4 py-2 rounded-full text-sm font-bold bg-slate-100">🌅 നേരത്തേ</button>
+      <button onclick="document.getElementById('searchWidget').scrollIntoView({behavior:'smooth'})" class="px-4 py-2 rounded-full text-sm font-bold bg-goldlight border border-gold">✏️ മാറ്റൂ</button>
+    </div>
+  </div>
+  <div class="grid lg:grid-cols-4 gap-5">
+    <!-- FILTERS -->
+    <aside class="bg-white rounded-3xl shadow-card border p-5 h-fit lg:sticky lg:top-24">
+      <div class="flex justify-between items-center mb-4"><h3 class="font-black text-lg">🔧 ഫിൽട്ടറുകൾ</h3><button onclick="resetFilters()" class="text-xs font-bold text-skybrand">റീസെറ്റ്</button></div>
+      <div class="mb-5"><div class="font-bold text-sm mb-2">💰 പരമാവധി വില: <span id="priceVal" class="text-skybrand">₹60,000</span></div><input id="priceRange" type="range" min="3000" max="80000" value="60000" step="1000" class="w-full accent-sky-500" oninput="applyFilters()"></div>
+      <div class="mb-5"><div class="font-bold text-sm mb-2">🛑 സ്റ്റോപ്പുകൾ</div>
+        <label class="flex items-center gap-2 text-sm font-semibold py-1"><input type="checkbox" class="stopF accent-sky-500" value="0" checked onchange="applyFilters()"> നേരിട്ട് (Non-stop)</label>
+        <label class="flex items-center gap-2 text-sm font-semibold py-1"><input type="checkbox" class="stopF accent-sky-500" value="1" checked onchange="applyFilters()"> 1 സ്റ്റോപ്പ്</label>
+        <label class="flex items-center gap-2 text-sm font-semibold py-1"><input type="checkbox" class="stopF accent-sky-500" value="2" checked onchange="applyFilters()"> 2+ സ്റ്റോപ്പ്</label>
+      </div>
+      <div class="mb-5"><div class="font-bold text-sm mb-2">🛫 എയർലൈനുകൾ</div><div id="airlineFilters" class="space-y-1 max-h-44 overflow-auto"></div></div>
+      <div class="mb-5"><div class="font-bold text-sm mb-2">🕐 പുറപ്പെടൽ സമയം</div>
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="toggleTimeFilter('morning',this)" class="timeF tab-active py-2 rounded-lg text-xs font-bold bg-slate-100">🌅 6-12</button>
+          <button onclick="toggleTimeFilter('afternoon',this)" class="timeF tab-active py-2 rounded-lg text-xs font-bold bg-slate-100">☀️ 12-6</button>
+          <button onclick="toggleTimeFilter('evening',this)" class="timeF tab-active py-2 rounded-lg text-xs font-bold bg-slate-100">🌇 6-12</button>
+          <button onclick="toggleTimeFilter('night',this)" class="timeF tab-active py-2 rounded-lg text-xs font-bold bg-slate-100">🌙 12-6</button>
+        </div>
+      </div>
+      <div class="bg-gradient-to-br from-violet-600 to-deepsky rounded-2xl p-4 text-white">
+        <div class="font-black">🔔 ഫെയർ അലേർട്ട്</div><p class="text-xs opacity-90 mt-1">വില കുറയുമ്പോൾ അറിയിപ്പ് ലഭിക്കും</p>
+        <input id="alertEmail" placeholder="ഇമെയിൽ" class="w-full mt-2 p-2.5 rounded-lg text-navy text-sm font-bold">
+        <button onclick="subscribeAlert()" class="w-full mt-2 bg-gold text-navy font-black py-2 rounded-lg text-sm">അലേർട്ട് സെറ്റ് ചെയ്യൂ</button>
+      </div>
+    </aside>
+    <!-- LIST -->
+    <div class="lg:col-span-3 space-y-4" id="flightList"></div>
+  </div>
+</section>
+
+<!-- POPULAR ROUTES -->
+<section id="routes" class="max-w-7xl mx-auto px-4 py-12 no-print">
+  <div class="flex items-end justify-between mb-6 reveal">
+    <div><div class="text-skybrand font-black text-sm tracking-widest">🔥 TRENDING ROUTES</div><h2 class="font-black text-2xl sm:text-4xl">ജനപ്രിയ റൂട്ടുകളും <span class="text-transparent bg-clip-text bg-gradient-to-r from-deepsky to-violet-600">ഓഫറുകളും</span></h2></div>
+    <div class="hidden sm:flex gap-2"><button onclick="scrollRoutes(-1)" class="w-11 h-11 rounded-full bg-white shadow border font-bold">←</button><button onclick="scrollRoutes(1)" class="w-11 h-11 rounded-full bg-navy text-white shadow font-bold">→</button></div>
+  </div>
+  <div id="routeScroll" class="flex gap-5 overflow-x-auto pb-4 no-scrollbar snap-x"></div>
+  <div class="grid sm:grid-cols-3 gap-4 mt-6 reveal">
+    <div class="bg-gradient-to-br from-navy to-navy2 rounded-3xl p-6 text-white relative overflow-hidden"><div class="absolute -right-6 -top-6 text-8xl opacity-20">🎉</div><div class="bg-gold text-navy text-xs font-black px-3 py-1 rounded-full inline-block">ONAM25</div><h3 class="font-black text-xl mt-2">ഓണം സ്പെഷ്യൽ 25% OFF</h3><p class="text-sm text-sky-200 mt-1">ഗൾഫ് റൂട്ടുകളിൽ • HDFC കാർഡിൽ അധിക 10%</p><button onclick="applyCoupon('ONAM25')" class="mt-3 bg-white text-navy font-black px-5 py-2 rounded-xl text-sm">കൂപ്പൺ പകർത്തൂ</button></div>
+    <div class="bg-gradient-to-br from-emerald-600 to-teal-700 rounded-3xl p-6 text-white relative overflow-hidden"><div class="absolute -right-6 -top-6 text-8xl opacity-20">🎓</div><div class="bg-white text-emerald-700 text-xs font-black px-3 py-1 rounded-full inline-block">STUDENT10</div><h3 class="font-black text-xl mt-2">സ്റ്റുഡന്റ്സിന് അധിക ബാഗേജ്</h3><p class="text-sm text-emerald-100 mt-1">10% കിഴിവ് + 10kg എക്സ്ട്രാ ബാഗേജ് ഫ്രീ</p><button onclick="applyCoupon('STUDENT10')" class="mt-3 bg-white text-emerald-700 font-black px-5 py-2 rounded-xl text-sm">കൂപ്പൺ പകർത്തൂ</button></div>
+    <div class="bg-gradient-to-br from-violet-600 to-fuchsia-600 rounded-3xl p-6 text-white relative overflow-hidden"><div class="absolute -right-6 -top-6 text-8xl opacity-20">💳</div><div class="bg-white text-violet-700 text-xs font-black px-3 py-1 rounded-full inline-block">FIRSTFLY</div><h3 class="font-black text-xl mt-2">ആദ്യ ബുക്കിംഗിന് ₹2500 OFF</h3><p class="text-sm text-violet-100 mt-1">₹15,000+ ബുക്കിംഗുകൾക്ക് ബാധകം</p><button onclick="applyCoupon('FIRSTFLY')" class="mt-3 bg-white text-violet-700 font-black px-5 py-2 rounded-xl text-sm">കൂപ്പൺ പകർത്തൂ</button></div>
+  </div>
+</section>
+
+<!-- AIRLINES MARQUEE -->
+<section class="bg-navy py-8 overflow-hidden no-print">
+  <p class="text-center text-sky-200 font-bold text-sm tracking-widest mb-5">✈️ ഞങ്ങളുടെ പാർട്ണർ എയർലൈനുകൾ — 450+ AIRLINES</p>
+  <div class="marquee-track" id="airlineMarquee"></div>
+</section>
+
+<!-- SERVICES -->
+<section id="services" class="max-w-7xl mx-auto px-4 py-14 no-print">
+  <div class="text-center mb-10 reveal"><div class="text-skybrand font-black text-sm tracking-widest">🛎️ MORE THAN FLIGHTS</div><h2 class="font-black text-3xl sm:text-4xl">വേറെയും <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-gold">എല്ലാ സേവനങ്ങളും</span> ഒരിടത്ത്</h2><p class="text-slate-500 font-semibold mt-2">വിസ മുതൽ ഫോറെക്സ് വരെ — യാത്രയ്ക്ക് വേണ്ടതെല്ലാം</p></div>
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4" id="serviceGrid"></div>
+</section>
+
+<!-- HOTELS & HOLIDAYS -->
+<section id="hotels" class="bg-white border-y py-14 no-print">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex flex-wrap items-end justify-between mb-6 reveal"><div><div class="text-skybrand font-black text-sm tracking-widest">🏨 STAY & HOLIDAYS</div><h2 class="font-black text-3xl sm:text-4xl">ഹോട്ടലുകളും <span class="text-transparent bg-clip-text bg-gradient-to-r from-deepsky to-violet-600">ഹോളിഡേ പാക്കേജുകളും</span></h2></div><button onclick="openService('hotel')" class="px-6 py-3 rounded-xl font-bold bg-navy text-white">എല്ലാം കാണൂ →</button></div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5" id="hotelGrid"></div>
+  </div>
+</section>
+
+<!-- FLIGHT TRACKER -->
+<section id="tracker" class="max-w-7xl mx-auto px-4 py-14 no-print">
+  <div class="bg-gradient-to-br from-navy via-navy2 to-deepsky rounded-[2rem] p-6 sm:p-10 relative overflow-hidden reveal">
+    <div class="absolute top-0 right-0 text-[12rem] opacity-10 leading-none">🛩️</div>
+    <div class="grid lg:grid-cols-2 gap-8 relative">
+      <div><div class="text-gold font-black text-sm tracking-widest">📍 LIVE FLIGHT TRACKER</div><h2 class="text-white font-black text-3xl sm:text-4xl mt-2">തത്സമയ ഫ്ലൈറ്റ്<br>സ്റ്റാറ്റസ് അറിയൂ</h2><p class="text-sky-200 font-semibold mt-3">ഫ്ലൈറ്റ് നമ്പർ അടിച്ചാൽ മതി — ഗേറ്റ്, ബെൽറ്റ്, കാലതാമസം എല്ലാം തത്സമയം.</p>
+        <div class="flex gap-2 mt-5"><input id="trackNum" placeholder="ഉദാ: 6E-457, EK-523" class="flex-1 p-4 rounded-2xl font-bold text-navy" value="EK-523"><button onclick="trackFlight()" class="px-7 py-4 rounded-2xl bg-gold font-black text-navy hover:scale-105 transition">ട്രാക്ക് ✈️</button></div>
+        <div class="flex gap-2 mt-3 flex-wrap"><button onclick="quickTrack('6E-457')" class="bg-white/10 border border-white/20 text-white px-4 py-2 rounded-full text-sm font-bold">6E-457</button><button onclick="quickTrack('AI-927')" class="bg-white/10 border border-white/20 text-white px-4 py-2 rounded-full text-sm font-bold">AI-927</button><button onclick="quickTrack('QR-557')" class="bg-white/10 border border-white/20 text-white px-4 py-2 rounded-full text-sm font-bold">QR-557</button><button onclick="quickTrack('EK-523')" class="bg-white/10 border border-white/20 text-white px-4 py-2 rounded-full text-sm font-bold">EK-523</button></div>
+      </div>
+      <div class="bg-white rounded-3xl p-6" id="trackResult">
+        <div class="text-center text-slate-400 font-bold py-10">✈️ ഫ്ലൈറ്റ് നമ്പർ നൽകി "ട്രാക്ക്" അമർത്തൂ<br><span class="text-sm font-semibold">തത്സമയ വിവരങ്ങൾ ഇവിടെ കാണാം</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MY TRIPS -->
+<section id="myTrips" class="max-w-7xl mx-auto px-4 py-12 no-print">
+  <div class="flex flex-wrap items-center justify-between mb-6 reveal"><div><div class="text-skybrand font-black text-sm tracking-widest">🧳 MANAGE BOOKINGS</div><h2 class="font-black text-3xl sm:text-4xl">എന്റെ യാത്രകൾ</h2></div>
+    <div class="flex gap-2 mt-3"><button onclick="switchTripTab('flights',this)" class="tripTab tab-active px-5 py-2.5 rounded-full font-bold text-sm bg-slate-200">✈️ ഫ്ലൈറ്റുകൾ</button><button onclick="switchTripTab('services',this)" class="tripTab px-5 py-2.5 rounded-full font-bold text-sm bg-slate-200">🛎️ സേവനങ്ങൾ</button></div>
+  </div>
+  <div id="tripsList" class="space-y-4"></div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="bg-gradient-to-b from-mist to-white py-14 no-print">
+  <div class="max-w-7xl mx-auto px-4">
+    <h2 class="font-black text-3xl text-center mb-8 reveal">💬 <span class="lang-ml">യാത്രക്കാർ പറയുന്നത്</span><span class="lang-en">What travellers say</span></h2>
+    <div class="grid md:grid-cols-3 gap-5" id="testiGrid"></div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="max-w-4xl mx-auto px-4 py-12 no-print">
+  <h2 class="font-black text-3xl text-center mb-8">❓ സംശയങ്ങൾ? <span class="text-skybrand">ഉത്തരങ്ങൾ ഇവിടെ</span></h2>
+  <div class="space-y-3" id="faqList"></div>
+</section>
+
+<!-- APP CTA -->
+<section class="max-w-7xl mx-auto px-4 pb-14 no-print">
+  <div class="bg-gradient-to-r from-violet-700 via-deepsky to-skybrand rounded-[2rem] p-8 sm:p-12 flex flex-col lg:flex-row items-center gap-8 reveal">
+    <div class="flex-1 text-white"><h2 class="font-black text-3xl sm:text-4xl">📱 ആപ്പ് ഡൗൺലോഡ് ചെയ്ത്<br>₹1500 അധിക കിഴിവ് നേടൂ</h2><p class="mt-3 text-sky-100 font-semibold">തത്സമയ അറിയിപ്പുകൾ, ഒരു ക്ലിക്ക് ചെക്ക്-ഇൻ, ഓഫ്‌ലൈൻ ബോർഡിംഗ് പാസ്.</p><div class="flex gap-3 mt-5 flex-wrap"><button onclick="toast('📱 ആപ്പ് ലിങ്ക് SMS ആയി അയച്ചു!','success')" class="bg-navy px-6 py-3 rounded-2xl font-bold flex items-center gap-2">▶️ Google Play</button><button onclick="toast('📱 ആപ്പ് ലിങ്ക് SMS ആയി അയച്ചു!','success')" class="bg-white text-navy px-6 py-3 rounded-2xl font-bold">🍎 App Store</button></div></div>
+    <div class="text-[9rem] leading-none animate-bounce">📲</div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="bg-navy text-white pt-12 pb-6 no-print">
+  <div class="max-w-7xl mx-auto px-4 grid sm:grid-cols-2 lg:grid-cols-5 gap-8">
+    <div class="lg:col-span-2"><div class="flex items-center gap-3"><div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-skybrand to-violet-600 flex items-center justify-center text-2xl">✈️</div><div class="font-extrabold text-xl">ആകാശയാത്ര SkyYatra</div></div><p class="text-sky-200 text-sm mt-3 font-semibold">കേരളത്തിന്റെ സ്വന്തം ഫ്ലൈറ്റ് ബുക്കിംഗ് പ്ലാറ്റ്ഫോം. 48 ലക്ഷം+ സന്തുഷ്ട യാത്രക്കാർ. IATA അംഗീകൃതം.</p><div class="flex gap-2 mt-4"><span class="bg-white/10 px-3 py-2 rounded-lg text-sm font-bold">💳 Visa</span><span class="bg-white/10 px-3 py-2 rounded-lg text-sm font-bold">💳 Mastercard</span><span class="bg-white/10 px-3 py-2 rounded-lg text-sm font-bold">📱 UPI</span><span class="bg-white/10 px-3 py-2 rounded-lg text-sm font-bold">🏦 NetBank</span></div></div>
+    <div><h4 class="font-black mb-3">ബുക്കിംഗ്</h4><ul class="space-y-2 text-sm text-sky-200 font-semibold"><li><a href="#home" class="hover:text-gold">ആഭ്യന്തര ഫ്ലൈറ്റുകൾ</a></li><li><a href="#home" class="hover:text-gold">അന്താരാഷ്ട്ര ഫ്ലൈറ്റുകൾ</a></li><li><a href="#hotels" class="hover:text-gold">ഹോട്ടലുകൾ</a></li><li><a href="#services" class="hover:text-gold">ഹോളിഡേ പാക്കേജ്</a></li></ul></div>
+    <div><h4 class="font-black mb-3">സേവനങ്ങൾ</h4><ul class="space-y-2 text-sm text-sky-200 font-semibold"><li><a href="#services" class="hover:text-gold">വിസ സഹായം</a></li><li><a href="#services" class="hover:text-gold">ട്രാവൽ ഇൻഷുറൻസ്</a></li><li><a href="#services" class="hover:text-gold">ഫോറെക്സ്</a></li><li><a href="#services" class="hover:text-gold">എയർപോർട്ട് ക്യാബ്</a></li></ul></div>
+    <div><h4 class="font-black mb-3">സഹായം 24x7</h4><ul class="space-y-2 text-sm text-sky-200 font-semibold"><li>📞 1800-419-0088</li><li>💬 മലയാളം ലൈവ് ചാറ്റ്</li><li>📧 care@skyyatra.in</li><li>📍 കൊച്ചി • ദുബായ് • ദോഹ</li></ul></div>
+  </div>
+  <div class="max-w-7xl mx-auto px-4 mt-8 pt-5 border-t border-white/10 text-center text-xs text-sky-300 font-semibold">© 2026 ആകാശയാത്ര SkyYatra • IATA Accredited • Made with ❤️ in Kerala • എല്ലാ വിലകളിലും GST ഉൾപ്പെടെ</div>
+</footer>
+
+<!-- FLOATING -->
+<div class="fixed bottom-5 right-5 z-50 flex flex-col gap-3 no-print">
+  <button onclick="toggleChat()" class="w-14 h-14 rounded-full bg-gradient-to-br from-violet-600 to-deepsky text-white text-2xl shadow-2xl hover:scale-110 transition badge-pulse">💬</button>
+  <button onclick="window.scrollTo({top:0,behavior:'smooth'})" class="w-14 h-14 rounded-full bg-white border shadow-xl text-xl hover:scale-110 transition">⬆️</button>
+</div>
+
+<!-- CHAT -->
+<div id="chatPanel" class="hidden fixed bottom-24 right-5 z-50 w-[340px] max-w-[calc(100vw-2rem)] bg-white rounded-3xl shadow-2xl border overflow-hidden no-print">
+  <div class="bg-gradient-to-r from-navy to-deepsky p-4 flex items-center gap-3"><div class="w-11 h-11 rounded-full bg-gold flex items-center justify-center text-2xl">🤖</div><div><div class="text-white font-black">യാത്രാമിത്രം <span class="text-green-400 text-xs">● ഓൺലൈൻ</span></div><div class="text-sky-200 text-xs font-semibold">മലയാളത്തിൽ ചോദിക്കൂ, ഉടൻ മറുപടി</div></div><button onclick="toggleChat()" class="ml-auto text-white text-xl">✕</button></div>
+  <div id="chatBody" class="h-72 overflow-y-auto p-4 space-y-3 bg-mist"></div>
+  <div class="p-3 border-t bg-white"><div class="flex gap-2 mb-2 flex-wrap"><button onclick="askBot('വില')" class="text-xs font-bold bg-sky-50 border border-sky-200 px-3 py-1.5 rounded-full">💰 വില?</button><button onclick="askBot('റീഫണ്ട്')" class="text-xs font-bold bg-sky-50 border border-sky-200 px-3 py-1.5 rounded-full">↩️ റീഫണ്ട്?</button><button onclick="askBot('ബാഗേജ്')" class="text-xs font-bold bg-sky-50 border border-sky-200 px-3 py-1.5 rounded-full">🧳 ബാഗേജ്?</button><button onclick="askBot('വിസ')" class="text-xs font-bold bg-sky-50 border border-sky-200 px-3 py-1.5 rounded-full">🛂 വിസ?</button></div>
+  <div class="flex gap-2"><input id="chatInput" onkeypress="if(event.key==='Enter')sendChat()" placeholder="ചോദിക്കൂ..." class="flex-1 p-3 rounded-xl border-2 border-slate-200 text-sm font-semibold"><button onclick="sendChat()" class="bg-gradient-to-r from-deepsky to-violet-600 text-white px-4 rounded-xl font-bold">➤</button></div></div>
+</div>
+
+<!-- SEAT MODAL -->
+<div id="seatModal" class="hidden fixed inset-0 z-[60] modal-bg overflow-y-auto no-print">
+  <div class="min-h-screen flex items-start sm:items-center justify-center p-3 py-6">
+    <div class="bg-white rounded-3xl w-full max-w-5xl overflow-hidden shadow-2xl">
+      <div class="bg-gradient-to-r from-navy to-deepsky p-5 flex flex-wrap items-center gap-3">
+        <div class="text-white"><div class="font-black text-lg" id="seatFlightTitle">✈️ ഫ്ലൈറ്റ്</div><div class="text-sky-200 text-sm font-semibold" id="seatFlightSub"></div></div>
+        <div class="ml-auto flex gap-2"><span class="bg-white/15 text-white px-3 py-1.5 rounded-full text-xs font-bold">🟦 ലഭ്യം</span><span class="bg-white/15 text-white px-3 py-1.5 rounded-full text-xs font-bold">🟪 തിരഞ്ഞെടുത്തു</span><span class="bg-white/15 text-white px-3 py-1.5 rounded-full text-xs font-bold">⬜ ബുക്ക്ഡ്</span></div>
+        <button onclick="closeModal('seatModal')" class="text-white text-2xl bg-white/15 w-10 h-10 rounded-full">✕</button>
+      </div>
+      <div class="flex items-center gap-2 px-6 pt-5 text-xs font-black"><div class="flex items-center gap-1"><span class="w-7 h-7 rounded-full bg-gradient-to-r from-skybrand to-violet-600 text-white flex items-center justify-center">1</span> ഫ്ലൈറ്റ്</div><div class="step-line fill"></div><div class="flex items-center gap-1"><span class="w-7 h-7 rounded-full bg-gradient-to-r from-skybrand to-violet-600 text-white flex items-center justify-center">2</span> സീറ്റ്</div><div class="step-line"></div><div class="flex items-center gap-1 text-slate-400"><span class="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center">3</span> വിവരങ്ങൾ</div><div class="step-line"></div><div class="flex items-center gap-1 text-slate-400"><span class="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center">4</span> പേയ്മെന്റ്</div></div>
+      <div class="grid lg:grid-cols-3 gap-0 mt-4">
+        <div class="lg:col-span-2 p-5 bg-gradient-to-b from-sky-50 to-white max-h-[60vh] overflow-y-auto">
+          <div class="aircraft-nose"><div class="cockpit"></div><span class="absolute bottom-1 text-gold text-[10px] font-black tracking-widest">✈️ SKYYATRA AIRWAYS</span></div>
+          <div class="max-w-md mx-auto bg-white border-x-4 border-slate-200 rounded-b-[3rem] px-4 pb-8 pt-4 shadow-inner">
+            <div class="text-center text-xs font-black text-gold bg-navy rounded-full py-1.5 mb-3">👑 BUSINESS CLASS • Rows 1-3</div>
+            <div id="businessSeats"></div>
+            <div class="text-center text-xs font-black text-skybrand bg-sky-100 rounded-full py-1.5 my-3">💺 PREMIUM ECONOMY • Rows 4-6 (Extra Legroom)</div>
+            <div id="premiumSeats"></div>
+            <div class="text-center text-xs font-black text-slate-500 bg-slate-100 rounded-full py-1.5 my-3">💺 ECONOMY • Rows 7-30</div>
+            <div id="economySeats"></div>
+            <div class="flex justify-center gap-6 mt-4 text-3xl"><span>🚻</span><span>🍱</span><span>🚪</span></div>
+          </div>
+        </div>
+        <div class="p-5 bg-mist border-l">
+          <h3 class="font-black text-lg mb-3">🧾 ബുക്കിംഗ് സംഗ്രഹം</h3>
+          <div id="seatSummary" class="bg-white rounded-2xl p-4 border text-sm font-semibold space-y-2"></div>
+          <div class="mt-3 bg-white rounded-2xl p-4 border"><div class="font-bold text-sm mb-2">💺 തിരഞ്ഞെടുത്ത സീറ്റുകൾ (<span id="selSeatCount">0</span>/<span id="maxSeatCount">1</span>)</div><div id="selSeatList" class="flex flex-wrap gap-2"><span class="text-xs text-slate-400">സീറ്റിൽ ക്ലിക്ക് ചെയ്യൂ 👆</span></div></div>
+          <div class="mt-3 bg-goldlight border border-gold rounded-2xl p-3 text-xs font-bold">💡 ടിപ്പ്: ജനാല അരികിലെ സീറ്റുകൾക്ക് (A/F) മികച്ച കാഴ്ച! Exit Row-യിൽ അധിക കാലുനീട്ടം.</div>
+          <button onclick="goToPassenger()" class="w-full mt-4 py-4 rounded-2xl font-black text-white bg-gradient-to-r from-orange-500 to-gold shadow-xl hover:scale-[1.02] transition">തുടരൂ → യാത്രക്കാരുടെ വിവരങ്ങൾ</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PASSENGER MODAL -->
+<div id="paxModal" class="hidden fixed inset-0 z-[60] modal-bg overflow-y-auto no-print">
+  <div class="min-h-screen flex items-start justify-center p-3 py-6">
+    <div class="bg-white rounded-3xl w-full max-w-4xl overflow-hidden shadow-2xl">
+      <div class="bg-gradient-to-r from-navy to-violet-700 p-5 flex items-center gap-3"><div class="text-white"><div class="font-black text-lg">👥 യാത്രക്കാരുടെ വിവരങ്ങൾ</div><div class="text-sky-200 text-sm">പാസ്പോർട്ട് / ആധാർ പ്രകാരം പേര് നൽകൂ</div></div><button onclick="closeModal('paxModal')" class="ml-auto text-white text-2xl bg-white/15 w-10 h-10 rounded-full">✕</button></div>
+      <div class="flex items-center gap-2 px-6 pt-5 text-xs font-black"><div class="flex items-center gap-1"><span class="w-7 h-7 rounded-full bg-green-500 text-white flex items-center justify-center">✓</span> ഫ്ലൈറ്റ്</div><div class="step-line fill"></div><div class="flex items-center gap-1"><span class="w-7 h-7 rounded-full bg-green-500 text-white flex items-center justify-center">✓</span> സീറ്റ്</div><div class="step-line fill"></div><div class="flex items-center gap-1"><span class="w-7 h-7 rounded-full bg-gradient-to-r from-skybrand to-violet-600 text-white flex items-center justify-center">3</span> വിവരങ്ങൾ</div><div class="step-line"></div><div class="flex items-center gap-1 text-slate-400"><span class="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center">4</span> പേയ്മെന്റ്</div></div>
+      <div class="grid lg:grid-cols-3 gap-5 p-5">
+        <div class="lg:col-span-2 space-y-4 max-h-[55vh] overflow-y-auto pr-1">
+          <div id="paxForms" class="space-y-4"></div>
+          <div class="bg-white border-2 border-slate-200 rounded-2xl p-4"><h4 class="font-black mb-3">📞 ബന്ധപ്പെടാനുള്ള വിവരങ്ങൾ</h4><div class="grid sm:grid-cols-2 gap-3"><input id="contactEmail" type="email" placeholder="📧 ഇമെയിൽ *" class="p-3 rounded-xl border-2 border-slate-200 font-semibold text-sm"><input id="contactPhone" placeholder="📱 മൊബൈൽ (10 അക്കം) *" maxlength="10" class="p-3 rounded-xl border-2 border-slate-200 font-semibold text-sm"><input id="couponInput" placeholder="🎟️ കൂപ്പൺ കോഡ് (ONAM25)" class="p-3 rounded-xl border-2 border-dashed border-gold font-semibold text-sm bg-goldlight/40"><button onclick="applyCouponInput()" class="p-3 rounded-xl bg-navy text-white font-bold text-sm">പ്രയോഗിക്കൂ</button></div></div>
+          <div class="bg-gradient-to-br from-sky-50 to-violet-50 border rounded-2xl p-4"><h4 class="font-black mb-3">🍱 അധിക സൗകര്യങ്ങൾ (Add-ons)</h4><div class="grid sm:grid-cols-2 gap-3" id="extrasGrid"></div></div>
+        </div>
+        <div class="bg-mist rounded-2xl p-4 h-fit"><h3 class="font-black mb-3">💰 വില വിവരങ്ങൾ</h3><div id="priceBreakup" class="text-sm font-semibold space-y-2"></div><button onclick="goToPayment()" class="w-full mt-4 py-4 rounded-2xl font-black text-white bg-gradient-to-r from-deepsky to-violet-600 shadow-xl hover:scale-[1.02] transition">തുടരൂ → പേയ്മെന്റ് 💳</button><div class="text-center text-xs text-slate-500 font-bold mt-2">🔒 100% സുരക്ഷിത പേയ്മെന്റ്</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAYMENT MODAL -->
+<div id="payModal" class="hidden fixed inset-0 z-[60] modal-bg overflow-y-auto no-print">
+  <div class="min-h-screen flex items-center justify-center p-3">
+    <div class="bg-white rounded-3xl w-full max-w-3xl overflow-hidden shadow-2xl">
+      <div class="bg-gradient-to-r from-emerald-600 to-teal-600 p-5 flex items-center gap-3"><div class="text-white"><div class="font-black text-lg">💳 സുരക്ഷിത പേയ്മെന്റ്</div><div class="text-emerald-100 text-sm font-semibold">256-bit SSL • PCI-DSS Certified</div></div><div class="ml-auto text-white font-black text-2xl" id="payTotal">₹0</div><button onclick="closeModal('payModal')" class="text-white text-2xl bg-white/15 w-10 h-10 rounded-full">✕</button></div>
+      <div class="grid sm:grid-cols-3">
+        <div class="bg-mist p-4 space-y-2">
+          <button onclick="setPayTab('upi',this)" class="pay-tab tab-active w-full text-left p-3.5 rounded-xl font-bold text-sm bg-white border">📱 UPI <span class="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full ml-1">ശുപാർശ</span></button>
+          <button onclick="setPayTab('card',this)" class="pay-tab w-full text-left p-3.5 rounded-xl font-bold text-sm bg-white border">💳 കാർഡ്</button>
+          <button onclick="setPayTab('net',this)" class="pay-tab w-full text-left p-3.5 rounded-xl font-bold text-sm bg-white border">🏦 നെറ്റ് ബാങ്കിംഗ്</button>
+          <button onclick="setPayTab('wallet',this)" class="pay-tab w-full text-left p-3.5 rounded-xl font-bold text-sm bg-white border">👛 വാലറ്റ് / EMI</button>
+        </div>
+        <div class="sm:col-span-2 p-6">
+          <div id="pay-upi"><label class="font-bold text-sm">UPI ID നൽകൂ</label><input id="upiId" placeholder="yourname@okhdfc / @ybl / @paytm" class="w-full mt-2 p-3.5 rounded-xl border-2 border-slate-200 font-bold"><div class="flex gap-2 mt-3"><span class="flex-1 text-center bg-slate-50 border rounded-xl py-2.5 font-bold text-sm">G-Pay</span><span class="flex-1 text-center bg-slate-50 border rounded-xl py-2.5 font-bold text-sm">PhonePe</span><span class="flex-1 text-center bg-slate-50 border rounded-xl py-2.5 font-bold text-sm">Paytm</span></div></div>
+          <div id="pay-card" class="hidden space-y-3"><input id="cardNum" placeholder="💳 കാർഡ് നമ്പർ (16 അക്കം)" maxlength="19" oninput="formatCard(this)" class="w-full p-3.5 rounded-xl border-2 border-slate-200 font-bold"><input placeholder="കാർഡിലെ പേര്" class="w-full p-3.5 rounded-xl border-2 border-slate-200 font-bold"><div class="grid grid-cols-2 gap-3"><input placeholder="MM / YY" maxlength="5" class="p-3.5 rounded-xl border-2 border-slate-200 font-bold"><input placeholder="CVV" type="password" maxlength="3" class="p-3.5 rounded-xl border-2 border-slate-200 font-bold"></div></div>
+          <div id="pay-net" class="hidden"><label class="font-bold text-sm">ബാങ്ക് തിരഞ്ഞെടുക്കൂ</label><div class="grid grid-cols-2 gap-2 mt-2"><button class="p-3 border-2 rounded-xl font-bold text-sm hover:border-skybrand">HDFC Bank</button><button class="p-3 border-2 rounded-xl font-bold text-sm hover:border-skybrand">SBI</button><button class="p-3 border-2 rounded-xl font-bold text-sm hover:border-skybrand">ICICI</button><button class="p-3 border-2 rounded-xl font-bold text-sm hover:border-skybrand">Federal 🏦</button></div></div>
+          <div id="pay-wallet" class="hidden"><div class="space-y-2"><button class="w-full p-3 border-2 rounded-xl font-bold text-sm text-left">👛 SkyYatra Wallet — ബാലൻസ് ₹4,250</button><button class="w-full p-3 border-2 rounded-xl font-bold text-sm text-left">💰 EMI — ₹2,499 x 6 മാസം (0% പലിശ)</button></div></div>
+          <div class="bg-goldlight border border-gold rounded-xl p-3 mt-4 text-xs font-bold">🎉 ഈ പേയ്മെന്റിൽ <b>₹<span id="cashbackAmt">350</span> ക്യാഷ്ബാക്ക്</b> + 500 റിവാർഡ് പോയിന്റുകൾ!</div>
+          <button onclick="processPayment()" id="payBtn" class="w-full mt-4 py-4 rounded-2xl font-black text-lg text-white bg-gradient-to-r from-emerald-500 to-teal-600 shadow-xl hover:scale-[1.02] transition">🔒 ₹<span id="payBtnAmt">0</span> അടയ്ക്കൂ</button>
+          <div class="text-center text-xs text-slate-400 font-bold mt-2">UPI • Visa • Mastercard • RuPay • NetBanking</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PROCESSING -->
+<div id="processing" class="hidden fixed inset-0 z-[70] bg-navy/90 backdrop-blur flex flex-col items-center justify-center no-print">
+  <div class="text-7xl animate-bounce">✈️</div>
+  <h2 class="text-white font-black text-2xl mt-4" id="procText">പേയ്മെന്റ് പ്രോസസ്സ് ചെയ്യുന്നു...</h2>
+  <div class="w-72 h-3 bg-white/20 rounded-full mt-4 overflow-hidden"><div id="procBar" class="h-full w-0 bg-gradient-to-r from-gold to-green-400 rounded-full transition-all"></div></div>
+  <p class="text-sky-200 text-sm mt-3 font-semibold">ദയവായി വിൻഡോ അടയ്ക്കരുത് 🙏</p>
+</div>
+
+<!-- TICKET MODAL -->
+<div id="ticketModal" class="hidden fixed inset-0 z-[60] modal-bg overflow-y-auto">
+  <div class="min-h-screen flex items-start justify-center p-3 py-6">
+    <div class="w-full max-w-3xl">
+      <div class="bg-gradient-to-r from-green-500 to-emerald-600 rounded-t-3xl p-6 text-center text-white no-print">
+        <div class="text-6xl">🎉</div><h2 class="font-black text-2xl mt-2">ബുക്കിംഗ് വിജയകരം!</h2><p class="text-green-100 font-semibold">ടിക്കറ്റ് ഇമെയിലിലേക്കും WhatsApp-ലേക്കും അയച്ചു ✅</p>
+      </div>
+      <div id="ticketPrint" class="bg-white rounded-b-3xl overflow-hidden shadow-2xl">
+        <div class="bg-navy p-5 flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-gold flex items-center justify-center text-2xl">✈️</div><div><div class="text-white font-black text-lg">ആകാശയാത്ര SkyYatra • E-TICKET</div><div class="text-sky-300 text-xs font-bold">PNR: <span id="tPnr" class="text-gold text-sm"></span> • Booking ID: <span id="tBid"></span></div></div><div class="ml-auto text-right"><div class="text-green-400 font-black text-sm bg-green-400/15 px-3 py-1 rounded-full">✓ CONFIRMED</div><div class="text-sky-300 text-xs font-bold mt-1" id="tDate"></div></div></div>
+        <div class="p-5 sm:p-6">
+          <div class="flex items-center justify-between gap-3 flex-wrap">
+            <div class="text-center"><div class="font-black text-3xl" id="tFrom">COK</div><div class="text-xs font-bold text-slate-500" id="tFromCity"></div><div class="font-black text-lg mt-1" id="tDep"></div></div>
+            <div class="flex-1 min-w-[140px]"><div class="flex items-center gap-2"><div class="timeline-dot"></div><div class="dashed-line flex-1"></div><span class="text-2xl">✈️</span><div class="dashed-line flex-1"></div><div class="timeline-dot"></div></div><div class="text-center text-xs font-bold text-slate-500 mt-1" id="tDur"></div><div class="text-center text-xs font-black text-skybrand" id="tFlight"></div></div>
+            <div class="text-center"><div class="font-black text-3xl" id="tTo">DXB</div><div class="text-xs font-bold text-slate-500" id="tToCity"></div><div class="font-black text-lg mt-1" id="tArr"></div></div>
+          </div>
+          <div class="grid sm:grid-cols-3 gap-3 mt-5">
+            <div class="bg-mist rounded-2xl p-4"><div class="text-xs font-bold text-slate-500">യാത്രക്കാർ</div><div id="tPax" class="font-bold text-sm mt-1"></div></div>
+            <div class="bg-mist rounded-2xl p-4"><div class="text-xs font-bold text-slate-500">സീറ്റുകൾ</div><div id="tSeats" class="font-black text-skybrand mt-1"></div><div class="text-xs font-bold text-slate-500 mt-2">ഗേറ്റ്: <span class="text-navy">--</span> • റിപ്പോർട്ട്: 3 മണിക്കൂർ മുൻപ്</div></div>
+            <div class="bg-mist rounded-2xl p-4 text-center"><img id="tQr" src="" class="w-28 h-28 mx-auto rounded-xl border" alt="QR"><div class="text-xs font-bold text-slate-500 mt-1">ബോർഡിംഗ് QR</div></div>
+          </div>
+          <div class="flex justify-between items-center mt-4 bg-goldlight border border-gold rounded-2xl p-4"><div><div class="text-xs font-bold text-slate-600">ആകെ അടച്ചത്</div><div class="font-black text-2xl" id="tTotal"></div></div><div class="text-right text-xs font-bold text-slate-600">പേയ്മെന്റ്: <span id="tPay">UPI</span><br>സ്റ്റാറ്റസ്: <span class="text-green-600">PAID ✓</span></div></div>
+          <div class="flex gap-3 mt-5 no-print"><button onclick="window.print()" class="flex-1 py-3.5 rounded-2xl font-black bg-navy text-white">🖨️ പ്രിന്റ് / PDF</button><button onclick="toast('📲 ടിക്കറ്റ് WhatsApp-ൽ അയച്ചു!','success')" class="flex-1 py-3.5 rounded-2xl font-black bg-green-500 text-white">📲 WhatsApp</button><button onclick="closeModal('ticketModal')" class="flex-1 py-3.5 rounded-2xl font-black bg-slate-100">അടയ്ക്കൂ</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SERVICE MODAL -->
+<div id="serviceModal" class="hidden fixed inset-0 z-[60] modal-bg overflow-y-auto no-print">
+  <div class="min-h-screen flex items-center justify-center p-3">
+    <div class="bg-white rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl">
+      <div id="svcHead" class="p-6 text-white bg-gradient-to-r from-deepsky to-violet-600"><h3 id="svcTitle" class="font-black text-xl"></h3><p id="svcSub" class="text-sm opacity-90 font-semibold"></p></div>
+      <div id="svcBody" class="p-6"></div>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div id="loginModal" class="hidden fixed inset-0 z-[60] modal-bg flex items-center justify-center p-4 no-print">
+  <div class="bg-white rounded-3xl w-full max-w-sm p-7 shadow-2xl text-center">
+    <div class="text-6xl">🔐</div><h3 class="font-black text-2xl mt-3">സ്വാഗതം! 🙏</h3><p class="text-sm text-slate-500 font-semibold">ലോഗിൻ ചെയ്ത് റിവാർഡുകൾ നേടൂ</p>
+    <input id="loginPhone" placeholder="📱 മൊബൈൽ നമ്പർ" maxlength="10" class="w-full mt-4 p-3.5 rounded-xl border-2 border-slate-200 font-bold text-center">
+    <button onclick="sendOTP()" class="w-full mt-3 py-3.5 rounded-xl font-black text-white bg-gradient-to-r from-deepsky to-violet-600">OTP അയയ്ക്കൂ</button>
+    <div id="otpRow" class="hidden mt-3"><input placeholder="6-അക്ക OTP" maxlength="6" class="w-full p-3.5 rounded-xl border-2 border-slate-200 font-bold text-center tracking-[.4em]"><button onclick="doLogin()" class="w-full mt-2 py-3.5 rounded-xl font-black bg-green-500 text-white">ലോഗിൻ ✓</button></div>
+    <button onclick="closeModal('loginModal')" class="mt-3 text-sm font-bold text-slate-400">പിന്നീട്</button>
+  </div>
+</div>
+
+<!-- MULTICITY -->
+<div id="multicityModal" class="hidden fixed inset-0 z-[60] modal-bg flex items-center justify-center p-4 no-print">
+  <div class="bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl">
+    <h3 class="font-black text-xl">🌍 മൾട്ടി-സിറ്റി യാത്ര</h3><p class="text-sm text-slate-500 font-semibold">ഒന്നിലധികം നഗരങ്ങൾ — ഒരു ബുക്കിംഗിൽ</p>
+    <div class="space-y-2 mt-4"><div class="flex gap-2"><input placeholder="COK → DXB" class="flex-1 p-3 rounded-xl border-2 font-bold text-sm"><input type="date" class="p-3 rounded-xl border-2 text-sm"></div><div class="flex gap-2"><input placeholder="DXB → LHR" class="flex-1 p-3 rounded-xl border-2 font-bold text-sm"><input type="date" class="p-3 rounded-xl border-2 text-sm"></div><div class="flex gap-2"><input placeholder="LHR → COK" class="flex-1 p-3 rounded-xl border-2 font-bold text-sm"><input type="date" class="p-3 rounded-xl border-2 text-sm"></div></div>
+    <button onclick="closeModal('multicityModal');toast('🌍 മൾട്ടി-സിറ്റി തിരയൽ ഉടൻ! വിദഗ്ധൻ വിളിക്കും.','success')" class="w-full mt-4 py-3.5 rounded-xl font-black text-white bg-gradient-to-r from-orange-500 to-gold">തിരയൂ 🔍</button>
+    <button onclick="closeModal('multicityModal')" class="w-full mt-2 text-sm font-bold text-slate-400">അടയ്ക്കൂ</button>
+  </div>
+</div>
+
+<!-- TOASTS -->
+<div id="toasts" class="fixed top-20 right-4 z-[80] space-y-2 max-w-xs w-full no-print"></div>
+
+<script>
+/* ============ DATA ============ */
+const AIRPORTS=[
+{code:'COK',city_ml:'കൊച്ചി',city_en:'Kochi',name:'കൊച്ചിൻ ഇന്റർനാഷണൽ',country:'India'},
+{code:'TRV',city_ml:'തിരുവനന്തപുരം',city_en:'Thiruvananthapuram',name:'ട്രിവാൻഡ്രം ഇന്റർനാഷണൽ',country:'India'},
+{code:'CCJ',city_ml:'കോഴിക്കോട്',city_en:'Kozhikode',name:'കാലിക്കറ്റ് ഇന്റർനാഷണൽ',country:'India'},
+{code:'CNN',city_ml:'കണ്ണൂർ',city_en:'Kannur',name:'കണ്ണൂർ ഇന്റർനാഷണൽ',country:'India'},
+{code:'DEL',city_ml:'ഡൽഹി',city_en:'New Delhi',name:'ഇന്ദിരാഗാന്ധി ഇന്റർനാഷണൽ',country:'India'},
+{code:'BOM',city_ml:'മുംബൈ',city_en:'Mumbai',name:'ഛത്രപതി ശിവാജി',country:'India'},
+{code:'BLR',city_ml:'ബെംഗളൂരു',city_en:'Bengaluru',name:'കെമ്പെഗൗഡ ഇന്റർനാഷണൽ',country:'India'},
+{code:'MAA',city_ml:'ചെന്നൈ',city_en:'Chennai',name:'ചെന്നൈ ഇന്റർനാഷണൽ',country:'India'},
+{code:'HYD',city_ml:'ഹൈദരാബാദ്',city_en:'Hyderabad',name:'രാജീവ് ഗാന്ധി ഇന്റർനാഷണൽ',country:'India'},
+{code:'DXB',city_ml:'ദുബായ്',city_en:'Dubai',name:'ദുബായ് ഇന്റർനാഷണൽ',country:'UAE'},
+{code:'AUH',city_ml:'അബുദാബി',city_en:'Abu Dhabi',name:'സായിദ് ഇന്റർനാഷണൽ',country:'UAE'},
+{code:'SHJ',city_ml:'ഷാർജ',city_en:'Sharjah',name:'ഷാർജ ഇന്റർനാഷണൽ',country:'UAE'},
+{code:'DOH',city_ml:'ദോഹ',city_en:'Doha',name:'ഹമദ് ഇന്റർനാഷണൽ',country:'Qatar'},
+{code:'JED',city_ml:'ജിദ്ദ',city_en:'Jeddah',name:'കിംഗ് അബ്ദുൽ അസീസ്',country:'Saudi'},
+{code:'RUH',city_ml:'റിയാദ്',city_en:'Riyadh',name:'കിംഗ് ഖാലിദ്',country:'Saudi'},
+{code:'DMM',city_ml:'ദമ്മാം',city_en:'Dammam',name:'കിംഗ് ഫഹദ്',country:'Saudi'},
+{code:'MCT',city_ml:'മസ്കറ്റ്',city_en:'Muscat',name:'മസ്കറ്റ് ഇന്റർനാഷണൽ',country:'Oman'},
+{code:'KWI',city_ml:'കുവൈറ്റ്',city_en:'Kuwait City',name:'കുവൈറ്റ് ഇന്റർനാഷണൽ',country:'Kuwait'},
+{code:'BAH',city_ml:'ബഹ്റൈൻ',city_en:'Bahrain',name:'ബഹ്റൈൻ ഇന്റർനാഷണൽ',country:'Bahrain'},
+{code:'SIN',city_ml:'സിംഗപ്പൂർ',city_en:'Singapore',name:'ചാംഗി',country:'Singapore'},
+{code:'KUL',city_ml:'ക്വാലാലംപൂർ',city_en:'Kuala Lumpur',name:'KL ഇന്റർനാഷണൽ',country:'Malaysia'},
+{code:'CMB',city_ml:'കൊളംബോ',city_en:'Colombo',name:'ബണ്ഡാരനായകെ',country:'Sri Lanka'},
+{code:'MLE',city_ml:'മാലി',city_en:'Male',name:'വെലാന ഇന്റർനാഷണൽ',country:'Maldives'},
+{code:'LHR',city_ml:'ലണ്ടൻ',city_en:'London',name:'ഹീത്രൂ',country:'UK'},
+{code:'JFK',city_ml:'ന്യൂയോർക്ക്',city_en:'New York',name:'JFK ഇന്റർനാഷണൽ',country:'USA'},
+{code:'YYZ',city_ml:'റ്റൊറന്റോ',city_en:'Toronto',name:'പിയേഴ്സൺ',country:'Canada'}
+];
+const AIRLINES=[
+{code:'6E',name:'IndiGo',ml:'ഇൻഡിഗോ',color:'#1B2060',rating:4.3,tag:'ഓൺ-ടൈം'},
+{code:'AI',name:'Air India',ml:'എയർ ഇന്ത്യ',color:'#C8102E',rating:4.1,tag:'ഫുൾ സർവീസ്'},
+{code:'IX',name:'Air India Express',ml:'എയർ ഇന്ത്യ എക്സ്പ്രസ്',color:'#E31837',rating:4.0,tag:'ബജറ്റ്'},
+{code:'QP',name:'Akasa Air',ml:'ആകാശ എയർ',color:'#FF4D00',rating:4.4,tag:'പുതിയത്'},
+{code:'SG',name:'SpiceJet',ml:'സ്പൈസ് ജെറ്റ്',color:'#D32F2F',rating:3.9,tag:'ബജറ്റ്'},
+{code:'UK',name:'Vistara',ml:'വിസ്താര',color:'#5C0E4E',rating:4.6,tag:'പ്രീമിയം'},
+{code:'EK',name:'Emirates',ml:'എമിറേറ്റ്സ്',color:'#D71920',rating:4.8,tag:'ലക്ഷ്വറി'},
+{code:'QR',name:'Qatar Airways',ml:'ഖത്തർ എയർവേയ്സ്',color:'#5C0632',rating:4.9,tag:'ലോകോത്തരം'},
+{code:'EY',name:'Etihad',ml:'എത്തിഹാദ്',color:'#BD8B13',rating:4.6,tag:'പ്രീമിയം'},
+{code:'WY',name:'Oman Air',ml:'ഒമാൻ എയർ',color:'#006E5A',rating:4.4,tag:'കംഫർട്ട്'},
+{code:'SV',name:'Saudia',ml:'സൗദിയ',color:'#006A4E',rating:4.2,tag:'ഫുൾ സർവീസ്'},
+{code:'FZ',name:'flydubai',ml:'ഫ്ലൈ ദുബായ്',color:'#00205B',rating:4.1,tag:'ബജറ്റ്+'}
+];
+const ROUTES=[
+{from:'COK',to:'DXB',img:'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?q=80&w=800&auto=format&fit=crop',off:'25% OFF'},
+{from:'COK',to:'DOH',img:'https://images.unsplash.com/photo-1572252009286-268acec5ca0a?q=80&w=800&auto=format&fit=crop',off:'20% OFF'},
+{from:'TRV',to:'JED',img:'https://images.unsplash.com/photo-1586724237569-f3b0d7e6e0b2?q=80&w=800&auto=format&fit=crop',off:'18% OFF'},
+{from:'CCJ',to:'RUH',img:'https://images.unsplash.com/photo-1466442929976-97f336a657be?q=80&w=800&auto=format&fit=crop',off:'22% OFF'},
+{from:'COK',to:'SIN',img:'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?q=80&w=800&auto=format&fit=crop',off:'15% OFF'},
+{from:'COK',to:'MLE',img:'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?q=80&w=800&auto=format&fit=crop',off:'30% OFF'},
+{from:'DEL',to:'LHR',img:'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?q=80&w=800&auto=format&fit=crop',off:'12% OFF'},
+{from:'BOM',to:'JFK',img:'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?q=80&w=800&auto=format&fit=crop',off:'10% OFF'}
+];
+const SERVICES=[
+{icon:'🏨',t:'ഹോട്ടൽ ബുക്കിംഗ്',s:'5 ലക്ഷം+ ഹോട്ടലുകൾ',c:'from-blue-500 to-cyan-500',id:'hotel'},
+{icon:'🛂',t:'വിസ സഹായം',s:'45+ രാജ്യങ്ങൾ • 99% വിജയം',c:'from-violet-500 to-purple-600',id:'visa'},
+{icon:'🛡️',t:'ട്രാവൽ ഇൻഷുറൻസ്',s:'₹499 മുതൽ • കോവിഡ് കവർ',c:'from-emerald-500 to-teal-600',id:'insurance'},
+{icon:'💱',t:'ഫോറെക്സ് & കാർഡ്',s:'മികച്ച നിരക്ക് • ഡോർ ഡെലിവറി',c:'from-amber-500 to-orange-600',id:'forex'},
+{icon:'🚕',t:'എയർപോർട്ട് ക്യാബ്',s:'24x7 • നിശ്ചയിച്ച നിരക്ക്',c:'from-rose-500 to-red-500',id:'cab'},
+{icon:'🛋️',t:'ലോഞ്ച് ആക്സസ്',s:'1200+ ലോഞ്ചുകൾ',c:'from-indigo-500 to-blue-600',id:'lounge'},
+{icon:'📦',t:'കാർഗോ & പാഴ്സൽ',s:'ഗൾഫിലേക്ക് കുറഞ്ഞ നിരക്ക്',c:'from-orange-500 to-amber-600',id:'cargo'},
+{icon:'🛩️',t:'ചാർട്ടേഡ് ഫ്ലൈറ്റ്',s:'പ്രൈവറ്റ് ജെറ്റ് • ഹെലികോപ്റ്റർ',c:'from-slate-700 to-slate-900',id:'charter'}
+];
+const HOTELS=[
+{name:'Taj Malabar, Kochi',loc:'കൊച്ചി • Sea View',price:8500,rating:4.8,img:'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=800&auto=format&fit=crop'},
+{name:'Burj Residency, Dubai',loc:'ദുബായ് • Near Metro',price:6800,rating:4.6,img:'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?q=80&w=800&auto=format&fit=crop'},
+{name:'Seaside Retreat, Maldives',loc:'മാലി • Private Beach',price:18500,rating:4.9,img:'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?q=80&w=800&auto=format&fit=crop'},
+{name:'Heritage Palace, Jaipur',loc:'ജയ്പൂർ • Royal Stay',price:5200,rating:4.5,img:'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?q=80&w=800&auto=format&fit=crop'}
+];
+
+/* ============ STATE ============ */
+let state={tripType:'oneway',pax:{adults:1,children:0,infants:0},cabin:'Economy',flights:[],filtered:[],selected:null,seats:[],seatMap:{},extras:{meal:0,baggage:0,insurance:0,lounge:0,priority:0},coupon:null,discount:0,timeFilters:new Set(['morning','afternoon','evening','night']),payMethod:'upi'};
+let bookings=JSON.parse(localStorage.getItem('skyYatraBookings')||'[]');
+let serviceBookings=JSON.parse(localStorage.getItem('skyYatraSvc')||'[]');
+
+const fmt=n=>'₹'+Number(n).toLocaleString('en-IN');
+const ap=code=>AIRPORTS.find(a=>a.code===code)||{code,city_ml:code,city_en:code};
+const al=code=>AIRLINES.find(a=>a.code===code)||AIRLINES[0];
+function toast(msg,type='info'){
+  const c={success:'from-green-500 to-emerald-600',info:'from-sky-500 to-blue-600',error:'from-red-500 to-rose-600',gold:'from-amber-500 to-orange-500'}[type];
+  const d=document.createElement('div');
+  d.className=`toast-in bg-gradient-to-r ${c} text-white p-4 rounded-2xl shadow-2xl font-bold text-sm flex gap-2 items-center`;
+  d.innerHTML=`<span>${msg}</span>`;
+  document.getElementById('toasts').appendChild(d);
+  setTimeout(()=>{d.style.opacity='0';d.style.transition='.4s';setTimeout(()=>d.remove(),400)},3500);
+}
+function openModal(id){document.getElementById(id).classList.remove('hidden');document.body.style.overflow='hidden'}
+function closeModal(id){document.getElementById(id).classList.add('hidden');document.body.style.overflow='auto'}
+function toggleLang(){document.body.classList.toggle('en-mode');toast(document.body.classList.contains('en-mode')?'🌐 Language: English':'🌐 ഭാഷ: മലയാളം','gold')}
+
+/* ============ INIT ============ */
+document.addEventListener('DOMContentLoaded',()=>{
+  const d=new Date();d.setDate(d.getDate()+7);
+  document.getElementById('travelDate').value=d.toISOString().split('T')[0];
+  document.getElementById('travelDate').min=new Date().toISOString().split('T')[0];
+  document.getElementById('fromInput').value='കൊച്ചി (COK)';
+  document.getElementById('toInput').value='ദുബായ് (DXB)';
+  renderRoutes();renderMarquee();renderServices();renderHotels();renderTesti();renderFAQ();renderTrips();initChat();initReveal();initCounters();
+  setTimeout(()=>document.getElementById('loader').classList.add('hide'),1500);
+  document.addEventListener('click',e=>{if(!e.target.closest('#fromInput')&&!e.target.closest('#fromList'))document.getElementById('fromList').classList.add('hidden');if(!e.target.closest('#toInput')&&!e.target.closest('#toList'))document.getElementById('toList').classList.add('hidden');if(!e.target.closest('#paxDrop')&&!e.target.closest('[onclick*="paxDrop"]'))document.getElementById('paxDrop').classList.add('hidden')});
+});
+function initReveal(){const o=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')}),{threshold:.1});document.querySelectorAll('.reveal').forEach(el=>o.observe(el))}
+function initCounters(){const o=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){const t=+e.target.dataset.target;let c=0;const step=t/60;const i=setInterval(()=>{c+=step;if(c>=t){c=t;clearInterval(i)}e.target.textContent=Math.floor(c).toLocaleString('en-IN')},25);o.unobserve(e.target)}}),{threshold:.5});document.querySelectorAll('.counter').forEach(el=>o.observe(el))}
+
+/* ============ SEARCH ============ */
+function setTripType(t,btn){state.tripType=t;document.querySelectorAll('.trip-tab').forEach(b=>b.classList.remove('tab-active'));btn.classList.add('tab-active');document.getElementById('returnRow').classList.toggle('hidden',t!=='round')}
+function showAirports(which){
+  const inp=document.getElementById(which+'Input').value.toLowerCase();
+  const list=document.getElementById(which+'List');
+  const f=AIRPORTS.filter(a=>(a.code+a.city_ml+a.city_en+a.name).toLowerCase().includes(inp)).slice(0,8);
+  list.innerHTML=f.map(a=>`<div onclick="pickAirport('${which}','${a.code}')" class="p-3 hover:bg-sky-50 cursor-pointer flex items-center gap-3 border-b"><div class="w-10 h-10 rounded-xl bg-gradient-to-br from-deepsky to-violet-600 text-white flex items-center justify-center font-black text-xs">${a.code}</div><div><div class="font-bold text-sm">${a.city_ml} <span class="text-slate-400">(${a.city_en})</span></div><div class="text-xs text-slate-500">${a.name} • ${a.country}</div></div></div>`).join('')||'<div class="p-4 text-sm font-bold text-slate-400">ഫലമില്ല 😔</div>';
+  list.classList.remove('hidden');
+}
+function pickAirport(which,code){const a=ap(code);document.getElementById(which+'Input').value=`${a.city_ml} (${code})`;document.getElementById(which+'Code').value=code;document.getElementById(which+'List').classList.add('hidden')}
+function swapAirports(){const f=document.getElementById('fromCode').value,t=document.getElementById('toCode').value;pickAirport('from',t);pickAirport('to',f)}
+function changePax(k,d){state.pax[k]=Math.max(k==='adults'?1:0,Math.min(9,state.pax[k]+d));if(state.pax.adults+state.pax.children>9){state.pax[k]--;toast('⚠️ പരമാവധി 9 യാത്രക്കാർ','error');return}document.getElementById('adultsCount').textContent=state.pax.adults;document.getElementById('childrenCount').textContent=state.pax.children;document.getElementById('infantsCount').textContent=state.pax.infants;updatePaxLabel()}
+function setClass(c,btn){state.cabin=c;document.querySelectorAll('.class-btn').forEach(b=>b.classList.remove('tab-active'));btn.classList.add('tab-active');updatePaxLabel()}
+function updatePaxLabel(){const t=state.pax.adults+state.pax.children+state.pax.infants;document.getElementById('paxLabel').textContent=`${t} Traveller${t>1?'s':''} • ${state.cabin}`}
+
+function basePrice(from,to){const a=ap(from),b=ap(to);const gulf=['DXB','AUH','SHJ','DOH','JED','RUH','DMM','MCT','KWI','BAH'];if(a.country==='India'&&b.country==='India')return 3800;if(gulf.includes(from)||gulf.includes(to))return 13500;return 28000}
+function searchFlights(){
+  const from=document.getElementById('fromCode').value,to=document.getElementById('toCode').value,date=document.getElementById('travelDate').value;
+  if(!from||!to)return toast('⚠️ From & To തിരഞ്ഞെടുക്കൂ','error');
+  if(from===to)return toast('⚠️ From, To ഒന്നാകരുത്!','error');
+  if(!date)return toast('⚠️ തീയതി തിരഞ്ഞെടുക്കൂ','error');
+  const list=document.getElementById('flightList');
+  list.innerHTML=Array(4).fill('<div class="bg-white rounded-3xl p-5 border shadow"><div class="shimmer h-6 rounded w-1/3 mb-3"></div><div class="shimmer h-4 rounded w-full mb-2"></div><div class="shimmer h-4 rounded w-2/3"></div></div>').join('');
+  document.getElementById('resultsSection').classList.remove('hidden');
+  document.getElementById('resultsSection').scrollIntoView({behavior:'smooth'});
+  document.getElementById('resFrom').textContent=from;document.getElementById('resTo').textContent=to;
+  document.getElementById('resDate').textContent=new Date(date).toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+  const tp=state.pax.adults+state.pax.children+state.pax.infants;
+  document.getElementById('resPax').textContent=`${tp} യാത്രക്കാർ • ${state.cabin}`;
+  setTimeout(()=>{
+    state.flights=generateFlights(from,to,date);
+    const af=[...new Set(state.flights.map(f=>f.airline))];
+    document.getElementById('airlineFilters').innerHTML=af.map(c=>{const a=al(c);return `<label class="flex items-center gap-2 text-sm font-semibold py-1"><input type="checkbox" class="airF accent-sky-500" value="${c}" checked onchange="applyFilters()"><span class="w-6 h-6 rounded-lg text-white text-[10px] font-black flex items-center justify-center" style="background:${a.color}">${c}</span> ${a.ml}</label>`}).join('');
+    applyFilters();
+  },900);
+}
+function generateFlights(from,to,date){
+  const base=basePrice(from,to);const out=[];const n=10+Math.floor(Math.random()*4);
+  for(let i=0;i<n;i++){
+    const a=AIRLINES[Math.floor(Math.random()*AIRLINES.length)];
+    const stops=Math.random()<.4?0:(Math.random()<.7?1:2);
+    if(document.getElementById('directOnly')?.checked&&stops!==0)continue;
+    let depH=Math.floor(Math.random()*24),depM=[0,5,10,15,20,25,30,35,40,45,50,55][Math.floor(Math.random()*12)];
+    let durMin=base<10000?60+Math.floor(Math.random()*120):base<20000?210+Math.floor(Math.random()*90)+stops*75:420+Math.floor(Math.random()*240)+stops*90;
+    let arrT=depH*60+depM+durMin;let arrH=Math.floor(arrT/60)%24,arrM=arrT%60;
+    const mult={Economy:1,Premium:1.45,Business:2.6}[state.cabin];
+    let price=Math.round((base*(0.85+Math.random()*0.7)*(a.code==='EK'||a.code==='QR'?1.25:1)*(stops===0?1.15:stops===1?1:0.88))*mult/100)*100;
+    if(document.getElementById('studentFare')?.checked)price=Math.round(price*0.92);
+    if(document.getElementById('seniorFare')?.checked)price=Math.round(price*0.9);
+    const hubs=['DXB','DOH','BOM','DEL','AUH','SHJ'].filter(h=>h!==from&&h!==to);
+    out.push({id:'F'+Date.now()+i,airline:a.code,fno:`${a.code}-${100+Math.floor(Math.random()*880)}`,from,to,date,dep:`${String(depH).padStart(2,'0')}:${String(depM).padStart(2,'0')}`,arr:`${String(arrH).padStart(2,'0')}:${String(arrM).padStart(2,'0')}`,dur:durMin,stops,via:stops?hubs.slice(0,stops):[],price,seatsLeft:2+Math.floor(Math.random()*18),meal:a.code==='6E'||a.code==='SG'?'Buy on board':'✅ Complimentary',baggage:base<10000?'15kg':'30kg',refund:Math.random()>.3,rating:a.rating,co2:Math.round(durMin*1.8)});
+  }
+  return out.sort((x,y)=>x.price-y.price);
+}
+function fmtDur(m){return `${Math.floor(m/60)}h ${m%60}m`}
+function applyFilters(){
+  const max=+document.getElementById('priceRange').value;
+  document.getElementById('priceVal').textContent=fmt(max);
+  document.getElementById('priceRange').style.setProperty('--v',max);
+  const stops=[...document.querySelectorAll('.stopF:checked')].map(c=>+c.value);
+  const airs=[...document.querySelectorAll('.airF:checked')].map(c=>c.value);
+  state.filtered=state.flights.filter(f=>f.price<=max&&stops.includes(Math.min(f.stops,2))&&airs.includes(f.airline)&&state.timeFilters.has(slotOf(f.dep)));
+  renderFlights();
+}
+function slotOf(t){const h=+t.split(':')[0];if(h>=6&&h<12)return 'morning';if(h>=12&&h<18)return 'afternoon';if(h>=18&&h<24)return 'evening';return 'night'}
+function toggleTimeFilter(s,btn){btn.classList.toggle('tab-active');btn.classList.contains('tab-active')?state.timeFilters.add(s):state.timeFilters.delete(s);applyFilters()}
+function sortFlights(k){document.querySelectorAll('.sort-btn').forEach(b=>{b.classList.remove('bg-navy','text-white');b.classList.add('bg-slate-100')});event.target.classList.add('bg-navy','text-white');event.target.classList.remove('bg-slate-100');if(k==='cheap')state.filtered.sort((a,b)=>a.price-b.price);if(k==='fast')state.filtered.sort((a,b)=>a.dur-b.dur);if(k==='early')state.filtered.sort((a,b)=>a.dep.localeCompare(b.dep));renderFlights()}
+function resetFilters(){document.getElementById('priceRange').value=60000;document.querySelectorAll('.stopF,.airF').forEach(c=>c.checked=true);state.timeFilters=new Set(['morning','afternoon','evening','night']);document.querySelectorAll('.timeF').forEach(b=>b.classList.add('tab-active'));applyFilters()}
+function renderFlights(){
+  const list=document.getElementById('flightList');
+  document.getElementById('flightCount').textContent=state.filtered.length;
+  document.getElementById('lowestFare').textContent=state.filtered.length?fmt(Math.min(...state.filtered.map(f=>f.price))):'—';
+  if(!state.filtered.length){list.innerHTML=`<div class="bg-white rounded-3xl p-12 text-center border"><div class="text-6xl">😔</div><h3 class="font-black text-xl mt-3">ഫ്ലൈറ്റുകളൊന്നും കിട്ടിയില്ല</h3><p class="text-sm text-slate-500 font-semibold">ഫിൽട്ടറുകൾ മാറ്റി നോക്കൂ</p><button onclick="resetFilters()" class="mt-4 px-6 py-2.5 rounded-xl bg-skybrand text-white font-bold">ഫിൽട്ടർ റീസെറ്റ്</button></div>`;return}
+  list.innerHTML=state.filtered.map((f,i)=>{
+    const a=al(f.airline);
+    return `<div class="flight-card bg-white rounded-3xl p-5 border-2 border-slate-100 shadow-sm ${i===0?'!border-gold ring-2 ring-gold/30':''}">
+    ${i===0?'<div class="inline-block bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[11px] font-black px-3 py-1 rounded-full mb-3">🏆 ഏറ്റവും കുറഞ്ഞ നിരക്ക്</div>':''}
+    <div class="flex flex-col md:flex-row md:items-center gap-4">
+      <div class="flex items-center gap-3 md:w-44"><div class="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-black shadow" style="background:${a.color}">${f.airline}</div><div><div class="font-black text-sm">${a.ml}</div><div class="text-xs text-slate-500 font-bold">${f.fno} • ⭐${f.rating}</div><div class="text-[10px] font-black text-skybrand bg-sky-50 px-2 py-0.5 rounded-full inline-block mt-0.5">${a.tag}</div></div></div>
+      <div class="flex-1 flex items-center gap-2 md:gap-4">
+        <div class="text-center"><div class="font-black text-xl">${f.dep}</div><div class="font-black text-sm text-skybrand">${f.from}</div></div>
+        <div class="flex-1 text-center"><div class="text-[11px] font-bold text-slate-500">${fmtDur(f.dur)}</div><div class="flex items-center my-1"><div class="w-2.5 h-2.5 rounded-full bg-skybrand"></div><div class="dashed-line flex-1"></div>${f.stops?`<span class="text-[10px] font-black bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full mx-1">${f.stops} Stop${f.stops>1?'s':''} ${f.via.join(',')}</span>`:'<span class="text-[10px] font-black bg-green-100 text-green-600 px-2 py-0.5 rounded-full mx-1">Non-stop</span>'}<div class="dashed-line flex-1"></div><div class="text-lg">✈️</div></div><div class="text-[10px] font-bold text-slate-400">🍱 ${f.meal} • 🧳 ${f.baggage}</div></div>
+        <div class="text-center"><div class="font-black text-xl">${f.arr}</div><div class="font-black text-sm text-skybrand">${f.to}</div></div>
+      </div>
+      <div class="md:text-right md:w-44 border-t md:border-t-0 md:border-l pt-3 md:pt-0 md:pl-4">
+        <div class="font-black text-2xl text-navy">${fmt(f.price)}</div><div class="text-[11px] text-slate-500 font-bold">ഒരാൾക്ക് • GST ഉൾപ്പെടെ</div>
+        ${f.seatsLeft<=5?`<div class="text-[11px] font-black text-red-500 animate-pulse">🔥 ${f.seatsLeft} സീറ്റുകൾ മാത്രം!</div>`:`<div class="text-[11px] font-bold text-green-600">${f.seatsLeft} സീറ്റുകൾ</div>`}
+        <button onclick="selectFlight('${f.id}')" class="w-full mt-2 py-3 rounded-xl font-black text-white bg-gradient-to-r from-deepsky to-violet-600 shadow-premium hover:scale-105 transition">സീറ്റ് തിരഞ്ഞെടുക്കൂ →</button>
+        <button onclick="this.nextElementSibling.classList.toggle('hidden')" class="text-xs font-bold text-skybrand mt-1">വിവരങ്ങൾ ▼</button>
+        <div class="hidden text-left text-xs font-semibold text-slate-600 bg-mist rounded-xl p-3 mt-1 space-y-1"><div>✈️ വിമാനം: ${Math.random()>.5?'Boeing 737 MAX':'Airbus A320neo'} • ${f.co2}kg CO₂</div><div>${f.refund?'✅ റീഫണ്ട് ലഭിക്കും':'⚠️ നോൺ-റീഫണ്ടബിൾ'}</div><div>🕐 ചെക്ക്-ഇൻ: 3 മണിക്കൂർ മുൻപ്</div></div>
+      </div>
+    </div></div>`}).join('');
+}
+
+/* ============ SEATS ============ */
+function selectFlight(id){
+  state.selected=state.flights.find(f=>f.id===id);state.seats=[];
+  buildSeatMap();updateSeatSummary();openModal('seatModal');
+  document.getElementById('seatFlightTitle').textContent=`✈️ ${al(state.selected.airline).ml} ${state.selected.fno} • ${state.selected.from} → ${state.selected.to}`;
+  document.getElementById('seatFlightSub').textContent=`${state.selected.dep} - ${state.selected.arr} • ${fmtDur(state.selected.dur)} • ${new Date(state.selected.date).toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'})}`;
+  document.getElementById('maxSeatCount').textContent=state.pax.adults+state.pax.children;
+}
+function seatPrice(row,letter,cabin){
+  if(cabin==='business')return 0;
+  if(cabin==='premium')return 799;
+  if(row===14||row===15)return 999;
+  if(letter==='A'||letter==='F')return 299;
+  if(letter==='C'||letter==='D')return 249;
+  return 149;
+}
+function buildSeatMap(){
+  state.seatMap={};
+  const mk=(rows,letters,cabin,el)=>{
+    let h='';
+    rows.forEach(r=>{
+      h+=`<div class="flex items-center justify-center gap-1.5 mb-1.5"><span class="text-[10px] font-black text-slate-400 w-6">${r}</span><div class="flex gap-1.5">`;
+      letters.forEach((L,idx)=>{
+        const id=r+L;
+        if(!state.seatMap[id])state.seatMap[id]=Math.random()<(cabin==='business'?.45:.3)?'occupied':'available';
+        const price=seatPrice(r,L,cabin);
+        const lr=(r===14||r===15)&&cabin==='economy';
+        h+=`<div onclick="toggleSeat('${id}','${cabin}',${price})" id="seat-${id}" title="${id} • ${price?fmt(price):'FREE'}" class="seat ${state.seatMap[id]} ${lr?'legroom':''} ${cabin==='business'?'business':''} !w-8 !h-8 !text-[9px]">${L}</div>`;
+        if(cabin!=='business'&&idx===2)h+=`<span class="w-5"></span>`;
+        if(cabin==='business'&&idx===1)h+=`<span class="w-6"></span>`;
+      });
+      h+=`</div><span class="text-[10px] font-black text-slate-400 w-6">${r}</span></div>`;
+    });
+    document.getElementById(el).innerHTML=h;
+  };
+  mk([1,2,3],['A','C','D','F'],'business','businessSeats');
+  mk([4,5,6],['A','B','C','D','E','F'],'premium','premiumSeats');
+  mk(Array.from({length:24},(_,i)=>i+7),['A','B','C','D','E','F'],'economy','economySeats');
+}
+function toggleSeat(id,cabin,price){
+  if(state.seatMap[id]==='occupied')return toast('😔 ഈ സീറ്റ് ബുക്ക് ആയി','error');
+  const max=state.pax.adults+state.pax.children;
+  const ix=state.seats.findIndex(s=>s.id===id);
+  if(ix>=0){state.seats.splice(ix,1);state.seatMap[id]='available'}
+  else{if(state.seats.length>=max)return toast(`⚠️ പരമാവധി ${max} സീറ്റുകൾ (${max} യാത്രക്കാർ)`,'error');state.seats.push({id,cabin,price});state.seatMap[id]='selected'}
+  document.querySelectorAll('.seat').forEach(el=>{const sid=el.id.replace('seat-','');el.classList.remove('selected');if(state.seatMap[sid]==='selected')el.classList.add('selected')});
+  updateSeatSummary();
+}
+function updateSeatSummary(){
+  const f=state.selected,tp=state.pax.adults+state.pax.children;
+  const seatFee=state.seats.reduce((s,x)=>s+x.price,0);
+  const base=f.price*tp;
+  document.getElementById('selSeatCount').textContent=state.seats.length;
+  document.getElementById('selSeatList').innerHTML=state.seats.length?state.seats.map(s=>`<span class="bg-gradient-to-r from-violet-600 to-skybrand text-white px-3 py-1.5 rounded-full text-xs font-black">${s.id} ${s.price?'• '+fmt(s.price):'• FREE'}</span>`).join(''):'<span class="text-xs text-slate-400">സീറ്റിൽ ക്ലിക്ക് ചെയ്യൂ 👆</span>';
+  document.getElementById('seatSummary').innerHTML=`<div class="flex justify-between"><span>✈️ അടിസ്ഥാന നിരക്ക് x${tp}</span><b>${fmt(base)}</b></div><div class="flex justify-between"><span>💺 സീറ്റ് ഫീ</span><b>${fmt(seatFee)}</b></div><div class="flex justify-between text-green-600"><span>🎉 കിഴിവ് (ഓൺലൈൻ)</span><b>− ${fmt(Math.round(base*0.02))}</b></div><div class="border-t pt-2 flex justify-between font-black text-base"><span>ആകെ</span><span class="text-skybrand">${fmt(base+seatFee-Math.round(base*0.02))}</span></div>`;
+}
+
+/* ============ PASSENGERS & EXTRAS ============ */
+const EXTRAS=[
+{icon:'🍱',id:'meal',t:'ഭക്ഷണം',d:'ബിരിയാണി / വെജ് മീൽസ്',p:450},
+{icon:'🧳',id:'baggage',t:'അധിക ബാഗേജ് 5kg',d:'ചെക്ക്-ഇൻ ബാഗേജ്',p:1800},
+{icon:'🛡️',id:'insurance',t:'യാത്രാ ഇൻഷുറൻസ്',d:'മെഡിക്കൽ + ബാഗേജ് കവർ',p:499},
+{icon:'🛋️',id:'lounge',t:'ലോഞ്ച് ആക്സസ്',d:'പ്രീമിയം എയർപോർട്ട് ലോഞ്ച്',p:1200},
+{icon:'⚡',id:'priority',t:'പ്രയോറിറ്റി ചെക്ക്-ഇൻ',d:'വരി ഒഴിവാക്കൂ',p:499}
+];
+function goToPassenger(){
+  const need=state.pax.adults+state.pax.children;
+  if(state.seats.length<need){
+    if(!confirm(`⚠️ ${need-state.seats.length} സീറ്റുകൾ കൂടി തിരഞ്ഞെടുക്കാനുണ്ട്. ഓട്ടോ-അസൈൻ ചെയ്യട്ടെ? (ഫ്രീ സീറ്റുകൾ)`))return;
+    const all=Object.keys(state.seatMap).filter(k=>state.seatMap[k]==='available'&&!k.match(/^[1-6]/));
+    while(state.seats.length<need&&all.length){const id=all.shift();state.seatMap[id]='selected';state.seats.push({id,cabin:'economy',price:0})}
+    updateSeatSummary();
+  }
+  closeModal('seatModal');buildPaxForms();buildExtras();updatePrice();openModal('paxModal');
+}
+function buildPaxForms(){
+  const c=document.getElementById('paxForms');c.innerHTML='';
+  const total=[...Array(state.pax.adults)].map((_,i)=>({t:'Adult',i:i+1})).concat([...Array(state.pax.children)].map((_,i)=>({t:'Child',i:i+1}))).concat([...Array(state.pax.infants)].map((_,i)=>({t:'Infant',i:i+1})));
+  total.forEach((p,idx)=>{
+    const seat=state.seats[idx]?state.seats[idx].id:(p.t==='Infant'?' lap':'—');
+    c.innerHTML+=`<div class="bg-white border-2 border-slate-200 rounded-2xl p-4"><div class="flex items-center gap-2 mb-3"><span class="bg-gradient-to-r from-deepsky to-violet-600 text-white text-xs font-black px-3 py-1 rounded-full">${p.t==='Adult'?'👤 മുതിർന്നവർ':p.t==='Child'?'🧒 കുട്ടി':'👶 കുഞ്ഞ്'} ${p.i}</span>${seat!=='—'&&p.t!=='Infant'?`<span class="bg-goldlight border border-gold text-xs font-black px-3 py-1 rounded-full">💺 ${seat}</span>`:''}</div>
+    <div class="grid sm:grid-cols-3 gap-2"><select class="paxTitle p-3 rounded-xl border-2 border-slate-200 font-bold text-sm"><option>Mr</option><option>Ms</option><option>Mrs</option><option>Master</option></select><input placeholder="ആദ്യ പേര് *" class="paxF p-3 rounded-xl border-2 border-slate-200 font-bold text-sm col-span-1"><input placeholder="അവസാന പേര് *" class="paxL p-3 rounded-xl border-2 border-slate-200 font-bold text-sm"></div>
+    <div class="grid sm:grid-cols-3 gap-2 mt-2"><input placeholder="പ്രായം" type="number" class="p-3 rounded-xl border-2 border-slate-200 font-bold text-sm"><select class="p-3 rounded-xl border-2 border-slate-200 font-bold text-sm"><option>പുരുഷൻ</option><option>സ്ത്രീ</option><option>മറ്റ്</option></select><input placeholder="പാസ്പോർട്ട് (അന്താരാഷ്ട്ര)" class="p-3 rounded-xl border-2 border-slate-200 font-bold text-sm"></div></div>`;
+  });
+}
+function buildExtras(){
+  document.getElementById('extrasGrid').innerHTML=EXTRAS.map(e=>`<div class="bg-white border-2 border-slate-200 rounded-2xl p-3 flex items-center gap-3"><div class="text-3xl">${e.icon}</div><div class="flex-1"><div class="font-black text-sm">${e.t}</div><div class="text-[11px] text-slate-500 font-semibold">${e.d}</div><div class="font-black text-skybrand text-sm">${fmt(e.p)}</div></div><div class="flex items-center gap-1.5"><button onclick="chExtra('${e.id}',-1)" class="w-7 h-7 rounded-full bg-slate-100 font-black">−</button><span id="ex-${e.id}" class="font-black text-sm w-4 text-center">0</span><button onclick="chExtra('${e.id}',1)" class="w-7 h-7 rounded-full bg-skybrand text-white font-black">+</button></div></div>`).join('');
+}
+function chExtra(id,d){const maxP=state.pax.adults+state.pax.children+state.pax.infants;state.extras[id]=Math.max(0,Math.min(id==='baggage'?4:maxP,state.extras[id]+d));document.getElementById('ex-'+id).textContent=state.extras[id];updatePrice()}
+function calcTotal(){
+  const f=state.selected,tp=state.pax.adults+state.pax.children;
+  const base=f.price*tp+Math.round(f.price*0.12)*state.pax.infants;
+  const seatFee=state.seats.reduce((s,x)=>s+x.price,0);
+  const exTotal=EXTRAS.reduce((s,e)=>s+e.p*state.extras[e.id],0);
+  const onlineDisc=Math.round(base*0.02);
+  let couponDisc=0;
+  if(state.coupon==='ONAM25')couponDisc=Math.round(base*0.25);
+  if(state.coupon==='STUDENT10')couponDisc=Math.round(base*0.10);
+  if(state.coupon==='FIRSTFLY')couponDisc=Math.min(2500,Math.round(base*0.15));
+  const taxes=Math.round((base-onlineDisc-couponDisc)*0.05);
+  const total=base+seatFee+exTotal-onlineDisc-couponDisc+taxes;
+  return {base,seatFee,exTotal,onlineDisc,couponDisc,taxes,total};
+}
+function updatePrice(){
+  const t=calcTotal();
+  document.getElementById('priceBreakup').innerHTML=`
+  <div class="flex justify-between"><span>✈️ നിരക്ക് (${state.pax.adults+state.pax.children} + ${state.pax.infants} infant)</span><b>${fmt(t.base)}</b></div>
+  <div class="flex justify-between"><span>💺 സീറ്റ് ഫീ</span><b>${fmt(t.seatFee)}</b></div>
+  <div class="flex justify-between"><span>🍱 Add-ons</span><b>${fmt(t.exTotal)}</b></div>
+  <div class="flex justify-between text-green-600"><span>🎉 ഓൺലൈൻ കിഴിവ്</span><b>− ${fmt(t.onlineDisc)}</b></div>
+  ${t.couponDisc?`<div class="flex justify-between text-green-600"><span>🎟️ ${state.coupon}</span><b>− ${fmt(t.couponDisc)}</b></div>`:''}
+  <div class="flex justify-between"><span>🧾 നികുതികൾ & ഫീസ്</span><b>${fmt(t.taxes)}</b></div>
+  <div class="border-t-2 border-dashed pt-2 flex justify-between font-black text-lg"><span>ആകെ</span><span class="text-transparent bg-clip-text bg-gradient-to-r from-deepsky to-violet-600">${fmt(t.total)}</span></div>`;
+}
+function applyCoupon(c){navigator.clipboard?.writeText(c);state.coupon=c;toast(`🎉 കൂപ്പൺ ${c} പകർത്തി! ബുക്കിംഗിൽ ഉപയോഗിക്കൂ`,'gold')}
+function applyCouponInput(){const v=document.getElementById('couponInput').value.trim().toUpperCase();if(['ONAM25','STUDENT10','FIRSTFLY'].includes(v)){state.coupon=v;updatePrice();toast(`🎉 ${v} പ്രയോഗിച്ചു!`,'success')}else toast('❌ അസാധുവായ കൂപ്പൺ','error')}
+
+/* ============ PAYMENT ============ */
+function goToPayment(){
+  const fns=[...document.querySelectorAll('.paxF')],lns=[...document.querySelectorAll('.paxL')];
+  for(let i=0;i<fns.length;i++){if(!fns[i].value.trim()||!lns[i].value.trim())return toast(`⚠️ യാത്രക്കാരൻ ${i+1}-ന്റെ പേര് നൽകൂ`,'error')}
+  const em=document.getElementById('contactEmail').value,ph=document.getElementById('contactPhone').value;
+  if(!em.includes('@'))return toast('⚠️ ശരിയായ ഇമെയിൽ നൽകൂ','error');
+  if(!/^[0-9]{10}$/.test(ph))return toast('⚠️ 10 അക്ക മൊബൈൽ നമ്പർ നൽകൂ','error');
+  closeModal('paxModal');
+  const t=calcTotal();
+  document.getElementById('payTotal').textContent=fmt(t.total);
+  document.getElementById('payBtnAmt').textContent=t.total.toLocaleString('en-IN');
+  document.getElementById('cashbackAmt').textContent=Math.min(500,Math.round(t.total*0.02)).toLocaleString('en-IN');
+  openModal('payModal');
+}
+function setPayTab(m,btn){state.payMethod=m;document.querySelectorAll('.pay-tab').forEach(b=>b.classList.remove('tab-active'));btn.classList.add('tab-active');['upi','card','net','wallet'].forEach(x=>document.getElementById('pay-'+x).classList.add('hidden'));document.getElementById('pay-'+m).classList.remove('hidden')}
+function formatCard(el){el.value=el.value.replace(/\D/g,'').slice(0,16).replace(/(\d{4})(?=\d)/g,'$1 ')}
+function processPayment(){
+  if(state.payMethod==='upi'&&!document.getElementById('upiId').value.includes('@'))return toast('⚠️ ശരിയായ UPI ID നൽകൂ','error');
+  if(state.payMethod==='card'&&document.getElementById('cardNum').value.replace(/\s/g,'').length<16)return toast('⚠️ 16 അക്ക കാർഡ് നമ്പർ നൽകൂ','error');
+  closeModal('payModal');
+  document.getElementById('processing').classList.remove('hidden');
+  const bar=document.getElementById('procBar'),txt=document.getElementById('procText');
+  const steps=[[20,'ബാങ്കുമായി ബന്ധിപ്പിക്കുന്നു...'],[50,'പേയ്മെന്റ് പരിശോധിക്കുന്നു...'],[80,'സീറ്റുകൾ ഉറപ്പിക്കുന്നു...'],[100,'ടിക്കറ്റ് തയ്യാറാക്കുന്നു...']];
+  let i=0;
+  const iv=setInterval(()=>{
+    if(i>=steps.length){clearInterval(iv);finishBooking();return}
+    bar.style.width=steps[i][0]+'%';txt.textContent=steps[i][1];i++;
+  },700);
+}
+function genPNR(){const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let s='';for(let i=0;i<6;i++)s+=c[Math.floor(Math.random()*c.length)];return s}
+function finishBooking(){
+  document.getElementById('processing').classList.add('hidden');
+  const t=calcTotal();
+  const names=[...document.querySelectorAll('.paxF')].map((f,i)=>f.value+' '+document.querySelectorAll('.paxL')[i].value);
+  const booking={id:'SY'+Date.now().toString().slice(-8),pnr:genPNR(),flight:{...state.selected,airlineName:al(state.selected.airline).ml},seats:[...state.seats],passengers:names,extras:{...state.extras},total:t.total,email:document.getElementById('contactEmail').value,phone:document.getElementById('contactPhone').value,pay:state.payMethod.toUpperCase(),status:'Confirmed',bookedAt:new Date().toLocaleString('en-IN')};
+  bookings.unshift(booking);localStorage.setItem('skyYatraBookings',JSON.stringify(bookings));
+  showTicket(booking);renderTrips();
+  confetti({particleCount:180,spread:100,origin:{y:.6}});
+  setTimeout(()=>confetti({particleCount:100,angle:60,spread:60,origin:{x:0}}),300);
+  setTimeout(()=>confetti({particleCount:100,angle:120,spread:60,origin:{x:1}}),500);
+}
+function showTicket(b){
+  document.getElementById('tPnr').textContent=b.pnr;document.getElementById('tBid').textContent=b.id;
+  document.getElementById('tDate').textContent=new Date(b.flight.date).toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'});
+  document.getElementById('tFrom').textContent=b.flight.from;document.getElementById('tFromCity').textContent=ap(b.flight.from).city_ml;
+  document.getElementById('tTo').textContent=b.flight.to;document.getElementById('tToCity').textContent=ap(b.flight.to).city_ml;
+  document.getElementById('tDep').textContent=b.flight.dep;document.getElementById('tArr').textContent=b.flight.arr;
+  document.getElementById('tDur').textContent=fmtDur(b.flight.dur)+(b.flight.stops?` • ${b.flight.stops} Stop via ${b.flight.via.join(',')}`:' • Non-stop');
+  document.getElementById('tFlight').textContent=`${b.flight.airlineName} ${b.flight.fno}`;
+  document.getElementById('tPax').innerHTML=b.passengers.map(p=>`• ${p}`).join('<br>');
+  document.getElementById('tSeats').textContent=b.seats.map(s=>s.id).join(', ')||'Auto-assign';
+  document.getElementById('tTotal').textContent=fmt(b.total);
+  document.getElementById('tPay').textContent=b.pay;
+  document.getElementById('tQr').src=`https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${b.pnr}-${b.id}-${b.flight.fno}`;
+  openModal('ticketModal');
+}
+
+/* ============ MY TRIPS ============ */
+let tripTab='flights';
+function switchTripTab(t,btn){tripTab=t;document.querySelectorAll('.tripTab').forEach(b=>b.classList.remove('tab-active'));btn.classList.add('tab-active');renderTrips()}
+function renderTrips(){
+  document.getElementById('tripCount').textContent=bookings.filter(b=>b.status==='Confirmed').length;
+  const el=document.getElementById('tripsList');
+  if(tripTab==='flights'){
+    if(!bookings.length){el.innerHTML=`<div class="bg-white rounded-3xl p-12 text-center border"><div class="text-7xl">🧳</div><h3 class="font-black text-xl mt-4">ഇതുവരെ യാത്രകളൊന്നുമില്ല</h3><p class="text-sm text-slate-500 font-semibold">ആദ്യ യാത്ര ബുക്ക് ചെയ്ത് ₹2500 കിഴിവ് നേടൂ!</p><button onclick="document.getElementById('searchWidget').scrollIntoView({behavior:'smooth'})" class="mt-4 px-8 py-3 rounded-2xl font-black text-white bg-gradient-to-r from-deepsky to-violet-600">✈️ ഇപ്പോൾ ബുക്ക് ചെയ്യൂ</button></div>`;return}
+    el.innerHTML=bookings.map((b,i)=>{const a=al(b.flight.airline);return `<div class="bg-white rounded-3xl p-5 border-2 ${b.status==='Confirmed'?'border-green-200':'border-red-200'} shadow-sm flex flex-col lg:flex-row gap-4 items-start lg:items-center">
+    <div class="flex items-center gap-3"><div class="w-12 h-12 rounded-2xl text-white font-black flex items-center justify-center" style="background:${a.color}">${b.flight.airline}</div><div><div class="font-black">${b.flight.from} → ${b.flight.to}</div><div class="text-xs font-bold text-slate-500">${b.flight.fno} • ${b.flight.dep} • PNR: <b class="text-navy">${b.pnr}</b></div><div class="text-xs font-bold text-slate-500">${b.passengers.length} യാത്രക്കാർ • 💺 ${b.seats.map(s=>s.id).join(', ')||'—'}</div></div></div>
+    <div class="lg:ml-auto flex flex-wrap items-center gap-2"><span class="font-black ${b.status==='Confirmed'?'text-green-600 bg-green-50':'text-red-500 bg-red-50'} px-3 py-1.5 rounded-full text-xs">${b.status==='Confirmed'?'✓ '+b.status:'✕ '+b.status}</span><span class="font-black text-lg">${fmt(b.total)}</span>
+    ${b.status==='Confirmed'?`<button onclick='showTicket(bookings[${i}])' class="px-4 py-2 rounded-xl bg-navy text-white text-sm font-bold">🎫 ടിക്കറ്റ്</button><button onclick="checkin(${i})" class="px-4 py-2 rounded-xl bg-skybrand text-white text-sm font-bold">✅ ചെക്ക്-ഇൻ</button><button onclick="cancelBooking(${i})" class="px-4 py-2 rounded-xl bg-red-50 text-red-500 text-sm font-bold border border-red-200">റദ്ദാക്കൂ</button>`:`<button onclick="toast('💰 റീഫണ്ട് 5-7 ദിവസത്തിനുള്ളിൽ ലഭിക്കും','info')" class="px-4 py-2 rounded-xl bg-slate-100 text-sm font-bold">റീഫണ്ട് സ്റ്റാറ്റസ്</button>`}</div></div>`}).join('');
+  }else{
+    if(!serviceBookings.length){el.innerHTML=`<div class="bg-white rounded-3xl p-12 text-center border"><div class="text-7xl">🛎️</div><h3 class="font-black text-xl mt-4">സേവന ബുക്കിംഗുകളില്ല</h3><p class="text-sm text-slate-500 font-semibold">വിസ, ഹോട്ടൽ, ക്യാബ്, ഇൻഷുറൻസ് എന്നിവ ബുക്ക് ചെയ്യൂ</p><button onclick="document.getElementById('services').scrollIntoView({behavior:'smooth'})" class="mt-4 px-8 py-3 rounded-2xl font-black text-white bg-gradient-to-r from-amber-500 to-orange-500">സേവനങ്ങൾ കാണൂ</button></div>`;return}
+    el.innerHTML=serviceBookings.map(s=>`<div class="bg-white rounded-3xl p-5 border-2 border-sky-100 flex flex-col sm:flex-row gap-3 items-start sm:items-center"><div class="text-4xl">${s.icon}</div><div><div class="font-black">${s.title}</div><div class="text-xs font-bold text-slate-500">${s.detail} • ID: ${s.id}</div></div><div class="sm:ml-auto flex items-center gap-2"><span class="font-black text-green-600 bg-green-50 px-3 py-1.5 rounded-full text-xs">✓ ${s.status}</span><span class="font-black">${fmt(s.price)}</span></div></div>`).join('');
+  }
+}
+function cancelBooking(i){if(!confirm('റദ്ദാക്കണോ? റീഫണ്ട് നിയമങ്ങൾ ബാധകം.'))return;bookings[i].status='Cancelled';localStorage.setItem('skyYatraBookings',JSON.stringify(bookings));renderTrips();toast('↩️ ബുക്കിംഗ് റദ്ദാക്കി. റീഫണ്ട് പ്രോസസ്സ് ചെയ്തു.','info')}
+function checkin(i){const b=bookings[i];toast(`✅ ചെക്ക്-ഇൻ വിജയം! ${b.pnr} • ഗേറ്റ് ${1+Math.floor(Math.random()*30)} • ബോർഡിംഗ് ${b.flight.dep}`,'success');confetti({particleCount:60,spread:70})}
+
+/* ============ TRACKER ============ */
+function quickTrack(n){document.getElementById('trackNum').value=n;trackFlight()}
+function trackFlight(){
+  const n=(document.getElementById('trackNum').value||'EK-523').toUpperCase();
+  const el=document.getElementById('trackResult');
+  el.innerHTML=`<div class="text-center py-6"><div class="text-5xl animate-bounce">✈️</div><div class="font-bold text-sm mt-2 text-slate-500">ശേഖരിക്കുന്നു...</div></div>`;
+  setTimeout(()=>{
+    const prog=25+Math.floor(Math.random()*65);
+    const statuses=['On Time 🟢','On Time 🟢','Delayed 25 min 🟡','Boarding 🟢'];
+    const st=statuses[Math.floor(Math.random()*statuses.length)];
+    const from=['COK','TRV','DXB','DOH'][Math.floor(Math.random()*4)],to=['DXB','JED','LHR','SIN'][Math.floor(Math.random()*4)];
+    el.innerHTML=`<div class="flex items-center justify-between"><div><div class="font-black text-xl">${n}</div><div class="text-xs font-bold text-slate-500">${from} → ${to} • Boeing 777</div></div><span class="font-black text-xs bg-green-50 text-green-700 border border-green-200 px-3 py-1.5 rounded-full">${st}</span></div>
+    <div class="mt-5 relative"><div class="flex justify-between text-xs font-black mb-2"><span>🛫 ${from}<br><span class="text-slate-500">പുറപ്പെട്ടു 10:25</span></span><span class="text-right">🛬 ${to}<br><span class="text-slate-500">എത്തും 13:40</span></span></div>
+    <div class="h-2.5 bg-slate-100 rounded-full relative"><div class="h-full bg-gradient-to-r from-skybrand to-violet-600 rounded-full" style="width:${prog}%"></div><div class="absolute text-2xl" style="left:calc(${prog}% - 12px);top:-18px">✈️</div></div>
+    <div class="text-center text-xs font-black text-skybrand mt-3">${prog}% പൂർത്തിയായി • ⏱️ ${Math.floor(Math.random()*2)+1}h ${Math.floor(Math.random()*50)+10}m ബാക്കി • 📏 ${(prog*45).toLocaleString()} km • ⛰️ 38,000 ft • 💨 890 km/h</div></div>
+    <div class="grid grid-cols-3 gap-2 mt-4 text-center"><div class="bg-mist rounded-xl p-2.5"><div class="text-xs font-bold text-slate-500">ഗേറ്റ്</div><div class="font-black">B${1+Math.floor(Math.random()*20)}</div></div><div class="bg-mist rounded-xl p-2.5"><div class="text-xs font-bold text-slate-500">ബെൽറ്റ്</div><div class="font-black">${1+Math.floor(Math.random()*9)}</div></div><div class="bg-mist rounded-xl p-2.5"><div class="text-xs font-bold text-slate-500">ടെർമിനൽ</div><div class="font-black">T${1+Math.floor(Math.random()*3)}</div></div></div>`;
+  },1000);
+}
+function subscribeAlert(){const e=document.getElementById('alertEmail').value;if(!e.includes('@'))return toast('⚠️ ശരിയായ ഇമെയിൽ നൽകൂ','error');toast('🔔 ഫെയർ അലേർട്ട് സജീവം! വില കുറഞ്ഞാൽ അറിയിക്കാം.','success')}
+
+/* ============ RENDER SECTIONS ============ */
+function renderRoutes(){
+  document.getElementById('routeScroll').innerHTML=ROUTES.map(r=>{
+    const f=ap(r.from),t=ap(r.to),p=basePrice(r.from,r.to);
+    return `<div onclick="fillRoute('${r.from}','${r.to}')" class="route-card snap-start shrink-0 w-72 bg-white rounded-3xl overflow-hidden shadow-card border cursor-pointer">
+    <div class="relative h-44"><img src="${r.img}" class="w-full h-full object-cover" loading="lazy"><div class="absolute inset-0 bg-gradient-to-t from-navy/80 to-transparent"></div><span class="absolute top-3 left-3 bg-gold text-navy text-[11px] font-black px-3 py-1 rounded-full">${r.off}</span><div class="absolute bottom-3 left-4 text-white"><div class="font-black text-lg">${f.city_ml} → ${t.city_ml}</div><div class="text-xs font-bold opacity-80">${r.from} → ${r.to}</div></div></div>
+    <div class="p-4 flex items-center justify-between"><div><div class="text-xs font-bold text-slate-400 line-through">${fmt(Math.round(p*1.3))}</div><div class="font-black text-xl text-navy">${fmt(p)} <span class="text-xs font-bold text-slate-500">മുതൽ</span></div></div><span class="bg-gradient-to-r from-deepsky to-violet-600 text-white px-4 py-2 rounded-xl text-sm font-black">ബുക്ക് →</span></div></div>`}).join('');
+}
+function fillRoute(f,t){pickAirport('from',f);pickAirport('to',t);document.getElementById('searchWidget').scrollIntoView({behavior:'smooth'});setTimeout(searchFlights,600)}
+function scrollRoutes(d){document.getElementById('routeScroll').scrollBy({left:d*320,behavior:'smooth'})}
+function renderMarquee(){
+  const h=AIRLINES.map(a=>`<div class="flex items-center gap-2 bg-white/10 border border-white/15 rounded-2xl px-5 py-3 shrink-0"><span class="w-9 h-9 rounded-xl flex items-center justify-center text-white font-black text-xs" style="background:${a.color}">${a.code}</span><span class="text-white font-bold text-sm whitespace-nowrap">${a.ml} • ⭐${a.rating}</span></div>`).join('');
+  document.getElementById('airlineMarquee').innerHTML=h+h;
+}
+function renderServices(){
+  document.getElementById('serviceGrid').innerHTML=SERVICES.map(s=>`<div onclick="openService('${s.id}')" class="service-card reveal bg-white rounded-3xl p-5 border-2 border-slate-100 shadow-sm cursor-pointer text-center"><div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br ${s.c} flex items-center justify-center text-3xl shadow-lg">${s.icon}</div><div class="font-black mt-3 text-sm sm:text-base">${s.t}</div><div class="text-xs font-bold text-slate-500 mt-1">${s.s}</div><div class="mt-3 text-skybrand font-black text-xs">ബുക്ക് ചെയ്യൂ →</div></div>`).join('');
+  initReveal();
+}
+function renderHotels(){
+  document.getElementById('hotelGrid').innerHTML=HOTELS.map(h=>`<div class="bg-mist rounded-3xl overflow-hidden border shadow-sm hover:shadow-card hover:-translate-y-1 transition"><div class="relative h-48"><img src="${h.img}" class="w-full h-full object-cover" loading="lazy"><span class="absolute top-3 right-3 bg-white/95 text-xs font-black px-2.5 py-1 rounded-full">⭐ ${h.rating}</span></div><div class="p-4"><div class="font-black">${h.name}</div><div class="text-xs font-bold text-slate-500">📍 ${h.loc}</div><div class="flex items-center justify-between mt-3"><div class="font-black text-lg">${fmt(h.price)}<span class="text-xs text-slate-500 font-bold">/രാത്രി</span></div><button onclick="openService('hotel')" class="bg-navy text-white px-4 py-2 rounded-xl text-sm font-bold">ബുക്ക്</button></div></div></div>`).join('');
+}
+function renderTesti(){
+  const t=[{n:'പ്രവീൺ കുമാർ',r:'ദുബായ്',s:'കൊച്ചി → ദുബായ് എല്ലാ മാസവും ബുക്ക് ചെയ്യും. സീറ്റ് മാപ്പ് കണ്ട് ജനാല അരികിൽ ഇരിക്കാൻ പറ്റുന്നത് സൂപ്പർ! മലയാളത്തിൽ സപ്പോർട്ടും കിട്ടി. ⭐⭐⭐⭐⭐'},{n:'ഫാത്തിമ ഷെറിൻ',r:'ദോഹ',s:'വിസ + ഇൻഷുറൻസ് + ഫ്ലൈറ്റ് എല്ലാം ഒരിടത്ത്! കുടുംബമായി യാത്ര ചെയ്യാൻ ഇതിലും എളുപ്പമില്ല. റീഫണ്ടും 2 ദിവസം കൊണ്ട് കിട്ടി. ⭐⭐⭐⭐⭐'},{n:'ജോൺ മാത്യു',r:'റ്റൊറന്റോ',s:'ലണ്ടൻ വഴി കാനഡയിലേക്ക് ഏറ്റവും കുറഞ്ഞ നിരക്ക് ഇവിടെയാണ് കിട്ടിയത്. ലോഞ്ച് ആക്സസും ക്യാബും കൂടി ബുക്ക് ചെയ്തു. Highly recommended! ⭐⭐⭐⭐⭐'}];
+  document.getElementById('testiGrid').innerHTML=t.map(x=>`<div class="reveal bg-white rounded-3xl p-6 border shadow-sm"><div class="text-gold text-lg">★★★★★</div><p class="text-sm font-semibold text-slate-600 mt-2 leading-relaxed">"${x.s}"</p><div class="flex items-center gap-3 mt-4"><div class="w-11 h-11 rounded-full bg-gradient-to-br from-deepsky to-violet-600 text-white flex items-center justify-center font-black">${x.n[0]}</div><div><div class="font-black text-sm">${x.n}</div><div class="text-xs font-bold text-slate-500">📍 ${x.r}</div></div></div></div>`).join('');
+  initReveal();
+}
+function renderFAQ(){
+  const f=[['❓ ടിക്കറ്റ് റദ്ദാക്കിയാൽ റീഫണ്ട് കിട്ടുമോ?','✅ അതെ! റീഫണ്ടബിൾ ടിക്കറ്റുകൾക്ക് 5-7 പ്രവൃത്തി ദിവസത്തിനുള്ളിൽ 100% റീഫണ്ട് (എയർലൈൻ ചാർജ് കുറച്ച്) ലഭിക്കും. നോൺ-റീഫണ്ടബിൾ ടിക്കറ്റുകൾക്ക് തീയതി മാറ്റാം.'],['❓ സീറ്റ് എങ്ങനെ തിരഞ്ഞെടുക്കാം?','💺 ഫ്ലൈറ്റ് തിരഞ്ഞെടുത്ത ശേഷം തത്സമയ സീറ്റ് മാപ്പ് കാണാം. ജനാല, ഇടനാഴി, എക്സിറ്റ് റോ സീറ്റുകളിൽ ക്ലിക്ക് ചെയ്ത് ബുക്ക് ചെയ്യാം. ചില സീറ്റുകൾ ഫ്രീയാണ്!'],['❓ വിസയ്ക്കും അപേക്ഷിക്കാമോ?','🛂 തീർച്ചയായും! ദുബായ്, സൗദി, ഖത്തർ ഉൾപ്പെടെ 45+ രാജ്യങ്ങളുടെ വിസ സഹായം — 99% വിജയ നിരക്ക്, 3-5 ദിവസത്തിൽ വിസ.'],['❓ പേയ്മെന്റ് സുരക്ഷിതമാണോ?','🔒 100% സുരക്ഷിതം. UPI, കാർഡ്, നെറ്റ് ബാങ്കിംഗ് — 256-bit SSL എൻക്രിപ്ഷൻ, PCI-DSS സർട്ടിഫൈഡ്. പണം ഒരിക്കലും നഷ്ടപ്പെടില്ല.'],['❓ മലയാളത്തിൽ സഹായം കിട്ടുമോ?','💬 അതെ! 24x7 മലയാളം ലൈവ് ചാറ്റ് + ഫോൺ സപ്പോർട്ട് (1800-419-0088). യാത്രാമിത്രം ചാറ്റ്ബോട്ടിനോട് എപ്പോൾ വേണമെങ്കിലും ചോദിക്കാം.']];
+  document.getElementById('faqList').innerHTML=f.map(x=>`<div class="faq bg-white rounded-2xl border shadow-sm overflow-hidden"><button onclick="this.parentElement.classList.toggle('faq-open')" class="w-full text-left p-5 font-black flex justify-between items-center gap-3">${x[0]}<span class="faq-arrow text-skybrand">▼</span></button><div class="faq-answer"><p class="px-5 pb-5 text-sm font-semibold text-slate-600">${x[1]}</p></div></div>`).join('');
+}
+
+/* ============ SERVICES ============ */
+function openService(id){
+  const s=SERVICES.find(x=>x.id===id);
+  document.getElementById('svcTitle').textContent=s.icon+' '+s.t;
+  document.getElementById('svcSub').textContent=s.s;
+  const B=document.getElementById('svcBody');
+  const forms={
+    hotel:`<div class="space-y-3"><input placeholder="📍 നഗരം / ഹോട്ടൽ പേര്" class="w-full p-3.5 rounded-xl border-2 font-bold text-sm"><div class="grid grid-cols-2 gap-2"><input type="date" class="p-3 rounded-xl border-2 text-sm font-bold"><input type="date" class="p-3 rounded-xl border-2 text-sm font-bold"></div><select class="w-full p-3.5 rounded-xl border-2 font-bold text-sm"><option>2 മുതിർന്നവർ • 1 മുറി</option><option>കുടുംബം • 2 മുറികൾ</option></select><button onclick="bookService('hotel','🏨','ഹോട്ടൽ ബുക്കിംഗ്','2 രാത്രി • പ്രഭാത ഭക്ഷണം ഉൾപ്പെടെ',6800)" class="w-full py-4 rounded-2xl font-black text-white bg-gradient-to-r from-blue-500 to-cyan-500">🔍 തിരയൂ & ബുക്ക് ചെയ്യൂ</button></div>`,
+    visa:`<div class="space-y-3"><select class="w-full p-3.5 rounded-xl border-2 font-bold text-sm"><option>🇦🇪 ദുബായ് ടൂറിസ്റ്റ് വിസ — ₹7,499</option><option>🇸🇦 സൗദി വിസിറ്റ് വിസ — ₹12,999</option><option>🇶🇦 ഖത്തർ വിസ — ₹6,999</option><option>🇬🇧 UK വിസ — ₹14,999</option><option>🇺🇸 USA B1/B2 — ₹16,999</option><option>🇪🇺 ഷെംഗൻ വിസ — ₹9,999</option></select><input placeholder="📱 മൊബൈൽ നമ്പർ" class="w-full p-3.5 rounded-xl border-2 font-bold text-sm"><input placeholder="📧 ഇമെയിൽ" class="w-full p-3.5 rounded-xl border-2 font-bold text-sm"><button onclick="bookService('visa','🛂','വിസ അപേക്ഷ','ഡോക്യുമെന്റ് പിക്കപ്പ് + അപ്പോയിന്റ്മെന്റ്',7499)" class="w-full py-4 rounded-2xl font-black text-white bg-gradient-to-r from-violet-500 to-purple-600">അപേക്ഷിക്കൂ 📝</button><p class="text-xs text-center font-bold text-slate-500">✅ 99% വിജയം • 3-5 ദിവസം • വിദഗ്ധ സഹായം</p></div>`,
+    insurance:`<div class="space-y-3"><select class="w-full p-3.5 rounded-xl border-2 font-bold text-sm"><option>🌍 സിംഗിൾ ട്രിപ്പ് (15 ദിവസം) — ₹499</option><option>🌍 സിംഗിൾ ട്രിപ്പ് (30 ദിവസം) — ₹899</option><option>🌍 വാർഷിക മൾട്ടി-ട്രിപ്പ് — ₹2,999</option><option>👨‍👩‍👧 ഫാമിലി കവർ — ₹1,799</option></select><div class="bg-green-50 border border-green-200 rounded-xl p-3 text-xs font-bold">✅ $50,000 മെഡിക്കൽ • ✅ ബാഗേജ് നഷ്ടം • ✅ ഫ്ലൈറ്റ് റദ്ദാക്കൽ • ✅ കോവിഡ് കവർ</div><button onclick="bookService('insurance','🛡️','ട്രാവൽ ഇൻഷുറൻസ്','$50,000 കവറേജ് • തൽക്ഷണ പോളിസി',499)" class="w-full py-4 rounded-2xl font-black text-white bg-gradient-to-r from-emerald-500 to-teal-600">പോളിസി എടുക്കൂ 🛡️</button></div>`,
+    forex:`<div class="space-y-3"><div class="grid grid-cols-2 gap-2"><select class="p-3.5 rounded-xl border-2 font-bold text-sm"><option>🇦🇪 AED ദിർഹം</option><option>🇸🇦 SAR റിയാൽ</option><option>🇺🇸 USD ഡോളർ</option><option>🇪🇺 EUR യൂറോ</option><option>🇬🇧 GBP പൗണ്ട്</option></select><input placeholder="തുക" type="number" value="1000" class="p-3.5 rounded-xl border-2 font-bold text-sm"></div><div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-sm font-black text-center">💱 1 AED = ₹22.85 • മികച്ച നിരക്ക് ഗ്യാരണ്ടി!</div><button onclick="bookService('forex','💱','ഫോറെക്സ് ഓർഡർ','1000 AED • ഡോർ ഡെലിവറി FREE',22850)" class="w-full py-4 rounded-2xl font-black text-white bg-gradient-to-r from-amber-500 to-orange-600">ഓർഡർ ചെയ്യൂ 💰</button></div>`,
+    cab:`<div class="space-y-3"><div class="grid grid-cols-2 gap-2"><button class="p-3 border-2 border-skybrand bg-sky-50 rounded-xl font-bold text-sm">🛬 എയർപോർട്ട് പിക്കപ്പ്</button><button class="p-3 border-2 rounded-xl font-bold text-sm">🛫 എയർപോർട്ട് ഡ്രോപ്പ്</button></div><input placeholder="📍 വിലാസം" class="w-full p-3.5 rounded-xl border-2 font-bold text-sm"><div class="grid grid-cols-3 gap-2"><button class="p-3 border-2 rounded-xl font-bold text-xs">🚗 Sedan ₹899</button><button class="p-3 border-2 border-skybrand bg-sky-50 rounded-xl font-bold text-xs">🚙 SUV ₹1299</button><button class="p-3 border-2 rounded-xl font-bold text-xs">🚐 Innova ₹1599</button></div><button onclick="bookService('cab','🚕','എയർപോർട്ട് ക്യാബ്','SUV • ഫ്ലൈറ്റ് ട്രാക്കിംഗ് + 45min വെയിറ്റിംഗ് FREE',1299)" class="w-full py-4 rounded-2xl font-black text-white bg-gradient-to-r from-rose-500 to-red-500">ക്യാബ് ബുക്ക് ചെയ്യൂ 🚕</button></div>`,
+    lounge:`<div class="space-y-3"><select class="w-full p-3.5 rounded-xl border-2 font-bold text-sm"><option>✈️ കൊച്ചി (COK) — ₹1200</option><option>✈️ ദുബായ് (DXB) Marhaba — ₹2800</option><option>✈️ ദോഹ (DOH) — ₹2500</option><option>✈️ ഡൽഹി (DEL) — ₹1400</option></select><div class="bg-indigo-50 border border-indigo-200 rounded-xl p-3 text-xs font-bold">🍽️ ബുഫെ ഭക്ഷണം • 📶 WiFi • 🚿 ഷവർ • 💺 സുഖകരമായ ഇരിപ്പ്</div><button onclick="bookService('lounge','🛋️','ലോഞ്ച് ആക്സസ്','സിംഗിൾ വിസിറ്റ് • 3 മണിക്കൂർ',1200)" class="w-full py-4 rounded-2xl font-black text-white bg-gradient-to-r from-indigo-500 to-blue-600">ആക്സസ് ബുക്ക് ചെയ്യൂ 🛋️</button></div>`,
+    cargo:`<div class="space-y-3"><input placeholder="📦 എന്ത് അയയ്ക്കുന്നു? (ഉദാ: വസ്ത്രങ്ങൾ 10kg)" class="w-full p-3.5 rounded-xl border-2 font-bold text-sm"><div class="grid grid-cols-2 gap-2"><select class="p-3 rounded-xl border-2 font-bold text-sm"><option>കൊച്ചി</option><option>കോഴിക്കോട്</option></select><select class="p-3 rounded-xl border-2 font-bold text-sm"><option>ദുബായ് — ₹180/kg</option><option>ജിദ്ദ — ₹220/kg</option><option>ദോഹ — ₹190/kg</option></select></div><button onclick="bookService('cargo','📦','കാർഗോ ബുക്കിംഗ്','10kg • ഡോർ-ടു-ഡോർ • 5 ദിവസം',1800)" class="w-full py-4 rounded-2xl font-black text-white bg-gradient-to-r from-orange-500 to-amber-600">ബുക്ക് ചെയ്യൂ 📦</button></div>`,
+    charter:`<div class="space-y-3"><select class="w-full p-3.5 rounded-xl border-2 font-bold text-sm"><option>🛩️ പ്രൈവറ്റ് ജെറ്റ് (8 സീറ്റ്) — ₹4.5L/hr</option><option>🚁 ഹെലികോപ്റ്റർ (5 സീറ്റ്) — ₹1.2L/hr</option><option>✈️ എയർ ആംബുലൻസ് 24x7</option></select><input placeholder="📱 മൊബൈൽ — വിദഗ്ധൻ വിളിക്കും" class="w-full p-3.5 rounded-xl border-2 font-bold text-sm"><button onclick="bookService('charter','🛩️','ചാർട്ടർ അന്വേഷണം','പ്രൈവറ്റ് ജെറ്റ് • ക്വട്ടേഷൻ 30 മിനിറ്റിൽ',0)" class="w-full py-4 rounded-2xl font-black text-white bg-gradient-to-r from-slate-700 to-slate-900">ക്വട്ടേഷൻ നേടൂ 📞</button></div>`
+  };
+  B.innerHTML=forms[id]||forms.hotel;
+  openModal('serviceModal');
+}
+function bookService(id,icon,title,detail,price){
+  closeModal('serviceModal');
+  serviceBookings.unshift({id:'SV'+Date.now().toString().slice(-6),icon,title,detail,price,status:'Confirmed'});
+  localStorage.setItem('skyYatraSvc',JSON.stringify(serviceBookings));
+  renderTrips();confetti({particleCount:80,spread:80});
+  toast(`🎉 ${title} ബുക്ക് ചെയ്തു! വിവരങ്ങൾ SMS-ൽ അയച്ചു.`,'success');
+}
+
+/* ============ LOGIN / CHAT ============ */
+function sendOTP(){const p=document.getElementById('loginPhone').value;if(!/^[0-9]{10}$/.test(p))return toast('⚠️ 10 അക്ക നമ്പർ നൽകൂ','error');document.getElementById('otpRow').classList.remove('hidden');toast('📲 OTP അയച്ചു: 482913 (ഡെമോ)','info')}
+function doLogin(){closeModal('loginModal');toast('🎉 സ്വാഗതം! 500 ബോണസ് പോയിന്റുകൾ ലഭിച്ചു.','success');confetti({particleCount:60,spread:70})}
+function toggleChat(){const p=document.getElementById('chatPanel');p.classList.toggle('hidden');if(!p.classList.contains('hidden')&&!document.getElementById('chatBody').children.length)botSay('നമസ്കാരം! 🙏 ഞാൻ <b>യാത്രാമിത്രം</b>. ഫ്ലൈറ്റ് ബുക്കിംഗ്, വില, റീഫണ്ട്, വിസ — എന്തും മലയാളത്തിൽ ചോദിക്കൂ! ✈️')}
+function initChat(){}
+function botSay(html){const b=document.getElementById('chatBody');b.innerHTML+=`<div class="flex gap-2"><div class="w-8 h-8 rounded-full bg-gradient-to-br from-violet-600 to-deepsky text-white flex items-center justify-center shrink-0">🤖</div><div class="chat-msg bg-white border shadow-sm">${html}</div></div>`;b.scrollTop=b.scrollHeight}
+function userSay(t){const b=document.getElementById('chatBody');b.innerHTML+=`<div class="flex justify-end"><div class="chat-msg bg-gradient-to-r from-deepsky to-violet-600 text-white font-semibold">${t}</div></div>`;b.scrollTop=b.scrollHeight}
+function askBot(q){document.getElementById('chatInput').value=q;sendChat()}
+function sendChat(){
+  const inp=document.getElementById('chatInput'),q=inp.value.trim();if(!q)return;userSay(q);inp.value='';
+  setTimeout(()=>{
+    const l=q.toLowerCase();let r;
+    if(l.includes('വില')||l.includes('price')||l.includes('നിരക്ക്'))r='💰 കൊച്ചി → ദുബായ് <b>₹13,500 മുതൽ</b>, കൊച്ചി → ജിദ്ദ <b>₹16,200 മുതൽ</b>. ഇന്ന് <b>ONAM25</b> കൂപ്പണിൽ 25% കിഴിവ്! മുകളിലെ സെർച്ചിൽ തീയതി നൽകി നോക്കൂ 🔍';
+    else if(l.includes('റീഫണ്ട്')||l.includes('refund')||l.includes('റദ്ദാക്ക'))r='↩️ റീഫണ്ടബിൾ ടിക്കറ്റിന് <b>5-7 ദിവസത്തിൽ 100% റീഫണ്ട്</b>. "എന്റെ യാത്രകൾ" → ബുക്കിംഗ് → റദ്ദാക്കൂ ക്ലിക്ക് ചെയ്താൽ മതി. സഹായം വേണോ? 📞 1800-419-0088';
+    else if(l.includes('ബാഗേജ്')||l.includes('baggage')||l.includes('ലഗേജ്'))r='🧳 ആഭ്യന്തരം <b>15kg</b>, ഗൾഫ് <b>30kg</b> ഫ്രീ. അധികം വേണോ? 5kg <b>₹1,800</b> മാത്രം — ബുക്കിംഗിൽ Add-ons-ൽ ചേർക്കാം ✅';
+    else if(l.includes('വിസ')||l.includes('visa'))r='🛂 ദുബായ് വിസ <b>₹7,499</b> (3 ദിവസം), സൗദി <b>₹12,999</b>. 99% വിജയം! താഴെ "സേവനങ്ങൾ → വിസ" ക്ലിക്ക് ചെയ്യൂ 📝';
+    else if(l.includes('സീറ്റ്')||l.includes('seat'))r='💺 ഫ്ലൈറ്റ് തിരഞ്ഞെടുത്താൽ <b>തത്സമയ സീറ്റ് മാപ്പ്</b> കാണാം! ജനാല (A/F) ₹299, Exit Row ₹999, ചിലത് ഫ്രീ. കുടുംബത്തോടൊപ്പം അടുത്തടുത്ത് ഇരിക്കാം 👨‍👩‍👧';
+    else if(l.includes('ഹലോ')||l.includes('ഹായ്')||l.includes('hi')||l.includes('hello'))r='ഹായ്! 👋 എന്ത് സഹായമാണ് വേണ്ടത്? ഫ്ലൈറ്റ് തിരയണോ, വില അറിയണോ? ✈️';
+    else if(l.includes('നന്ദി')||l.includes('thank'))r='സന്തോഷം! 🙏 സുരക്ഷിത യാത്ര ആശംസിക്കുന്നു! വേറെ എന്തെങ്കിലും വേണോ? ✈️';
+    else if(l.includes('ഫോൺ')||l.includes('നമ്പർ')||l.includes('contact'))r='📞 24x7 മലയാളം ഹെൽപ്‌ലൈൻ: <b>1800-419-0088</b> (ടോൾ ഫ്രീ). 📧 care@skyyatra.in';
+    else r=`🤔 "<b>${q}</b>" — മനസ്സിലായി! വിശദമായി സഹായിക്കാൻ വിദഗ്ധൻ വിളിക്കും. 📞 <b>1800-419-0088</b>-ൽ വിളിക്കൂ, അല്ലെങ്കിൽ മുകളിൽ ഫ്ലൈറ്റ് സെർച്ച് ചെയ്ത് നോക്കൂ! ✈️<br><br>പെട്ടെന്ന്: 💰വില • ↩️റീഫണ്ട് • 🧳ബാഗേജ് • 🛂വിസ`;
+    botSay(r);
+  },700);
+}
+</script>
+</body>
+</html>
